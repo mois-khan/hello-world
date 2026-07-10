@@ -131,7 +131,7 @@ export async function findParcelIdByUlpin(ulpin: string): Promise<number | null>
   return meta?.id ?? null;
 }
 
-export async function mergeParcelWithMeta(parcelId: number) {
+export async function mergeParcelWithMeta(parcelId: number): Promise<import("./types").Parcel | null> {
   const meta = await prisma.parcelMeta.findUnique({ where: { id: parcelId } });
   const chain = await sim.simGetParcel(parcelId);
   if (!chain && !meta) return null;
@@ -143,9 +143,9 @@ export async function mergeParcelWithMeta(parcelId: number) {
     area: chain?.area ?? meta?.area ?? 0,
     documentHash: chain?.documentHash ?? "0x0",
     registeredAt: chain?.registeredAt ?? 0,
-    status: chain?.status ?? "Active",
+    status: (chain?.status ?? "Active") as import("./types").ParcelStatus,
     owner: chain?.owner ?? meta?.ownerWallet ?? "",
-    ulpin: meta?.ulpin,
+    ulpin: meta?.ulpin || undefined,
   };
 }
 
