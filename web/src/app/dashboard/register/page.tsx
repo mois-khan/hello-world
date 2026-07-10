@@ -8,6 +8,15 @@ import { bhumiApi } from "@/lib/api-client";
 import { DEMO_WALLETS } from "@/lib/demo-constants";
 import { connectWallet } from "@/lib/wallet";
 
+function generateRandomULPIN() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < 14; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 export default function RegisterParcelPage() {
   const [form, setForm] = useState({
     surveyNumber: "",
@@ -15,7 +24,7 @@ export default function RegisterParcelPage() {
     geo: "17.75,78.05",
     area: 1000,
     owner: DEMO_WALLETS.seller,
-    ulpin: "",
+    ulpin: generateRandomULPIN(),
   });
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState("");

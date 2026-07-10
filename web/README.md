@@ -16,16 +16,14 @@ Open [http://localhost:3000](http://localhost:3000)
 
 | Route | Description |
 |---|---|
-| `/` | Homepage — 3D hero, parcel cards, features |
-| `/verify` | TrustSeal ULPIN verification |
-| `/transfer` | Property transfer + Double-Sale Guard demo |
-| `/features` | 10 signature differentiators |
-| `/transparency` | District governance scoreboard |
-| `/sro` | Registrar console + BhumiShield fraud dashboard |
-| `/bank` | Bank collateral check + LienLock |
-| `/csc` | CSC BhumiKiosk (Telugu/Hindi/English) |
-| `/dispute` | NyaySetu dispute filing |
-| `/my-land` | User property portfolio |
+| `/` | Homepage — Features and portal entry points |
+| `/verify` | TrustSeal public verification search (by ID or ULPIN) |
+| `/verify/[id]` | Public immutable ownership record and AI document integrity report |
+| `/portal/parcels` | Citizen Portal — view your connected MetaMask parcels |
+| `/portal/transfer` | Multi-sig Property Transfer |
+| `/portal/approvals` | Escrow inbox for pending transfers |
+| `/dashboard` | Registrar War-Room (Live Fraud Map & AI Feed) |
+| `/dashboard/register` | Registrar minting tool to register new parcels |
 
 ## Demo ULPINs
 
