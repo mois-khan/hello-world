@@ -93,9 +93,6 @@ export default function VerifyByIdPage() {
                   <a href={`/api/certificate/${parcel.id}`} className="gov-btn-primary flex items-center gap-2 text-sm">
                     <Download className="w-4 h-4" /> Download Title Certificate
                   </a>
-                  <Link href={`/portal/transfer?parcelId=${parcel.id}`} className="gov-btn-secondary text-sm">
-                    Initiate Transfer
-                  </Link>
                 </div>
               </div>
 
