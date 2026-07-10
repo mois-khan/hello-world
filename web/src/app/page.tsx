@@ -98,7 +98,7 @@ export default function HomePage() {
                   <Link href="/verify" className="gov-btn-secondary text-sm">
                     Verify a Parcel
                   </Link>
-                  <Link href="/dashboard" className="gov-btn-outline text-sm border-white/30 text-white hover:bg-white/10">
+                  <Link href="/dashboard" className="gov-btn bg-transparent border border-white/30 text-white hover:bg-white/10 text-sm">
                     Registrar Dashboard
                   </Link>
                 </div>
