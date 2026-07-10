@@ -1,10 +1,10 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 model User {
@@ -25,7 +25,7 @@ model ParcelMeta {
   lat          Float
   lng          Float
   area         Int
-  ownerWallet  String
+  ownerWallet  String     @default("")
   currentDocId String?
   createdAt    DateTime   @default(now())
   documents    Document[]
