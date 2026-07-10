@@ -33,7 +33,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const document = doc ? {
       url: doc.storageUrl,
       sha256: doc.sha256,
-      aiReport: doc.aiReport
+      aiReport: doc.aiReport ? JSON.parse(doc.aiReport) : null
     } : null;
 
     const history = await getHistory(id);

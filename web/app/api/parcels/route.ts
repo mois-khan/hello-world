@@ -7,13 +7,29 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q');
+    const owner = searchParams.get('owner');
+    const district = searchParams.get('district');
     
-    const where = q ? {
-      OR: [
-        { surveyNumber: { contains: q, mode: 'insensitive' as const } },
-        { district: { contains: q, mode: 'insensitive' as const } }
-      ]
-    } : {};
+    const where: any = {};
+    
+    if (q) {
+      where.OR = [
+        { surveyNumber: { contains: q } },
+        { district: { contains: q } }
+      ];
+    }
+    
+    if (owner) {
+      where.ownerWallet = owner;
+    }
+    
+    if (district) {
+      if (where.OR) {
+        where.AND = [ { district: { contains: district } } ];
+      } else {
+        where.district = { contains: district };
+      }
+    }
 
     const metas = await prisma.parcelMeta.findMany({ where });
     
