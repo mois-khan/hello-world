@@ -5,7 +5,6 @@ import { scanTransfer } from "@/lib/fraud";
 import { prisma } from "@/lib/db";
 import { ensureSeeded } from "@/lib/seed";
 import { logAudit } from "@/lib/audit";
-import { logAudit } from "@/lib/audit";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {

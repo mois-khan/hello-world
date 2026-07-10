@@ -95,10 +95,8 @@ export async function isRegistrar(address: string): Promise<boolean> {
   }
   try {
     const contract = getContract();
-    return contract.hasRole(
-      "0x" + "0".repeat(63) + "1", // will use proper role hash
-      address
-    );
+    const role = await contract.REGISTRAR_ROLE();
+    return contract.hasRole(role, address);
   } catch {
     return false;
   }
