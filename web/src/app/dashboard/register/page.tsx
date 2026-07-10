@@ -29,7 +29,6 @@ export default function RegisterParcelPage() {
       if (file) {
         const upload = await bhumiApi.uploadDocument(file);
         documentHash = upload.sha256;
-        await bhumiApi.verifyDocument({ url: upload.url });
       }
 
       const registrar = (await connectWallet().catch(() => null))?.address ?? DEMO_WALLETS.registrar;
