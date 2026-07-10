@@ -18,6 +18,7 @@ export function Footer() {
             </p>
             {[
               { label: "Verify Parcel", href: "/verify" },
+              { label: "Verify Document", href: "/verify/document" },
               { label: "My Parcels", href: "/portal/parcels" },
               { label: "Initiate Transfer", href: "/portal/transfer" },
               { label: "Buyer Approvals", href: "/portal/approvals" },

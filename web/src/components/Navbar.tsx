@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 
 const PUBLIC_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/verify", label: "Verify" },
+  { href: "/verify", label: "Verify Parcel" },
+  { href: "/verify/document", label: "Verify Document" },
 ];
 
 const CITIZEN_LINKS = [
