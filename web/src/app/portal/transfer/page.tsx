@@ -148,7 +148,7 @@ function TransferContent() {
 
                 <button
                   onClick={handleSubmit}
-                  disabled={!parcelId || !file || submitting || parcel?.status === "InTransfer"}
+                  disabled={!parcelId || !file || submitting || !parcel || parcel.status === "InTransfer"}
                   className="gov-btn-primary mt-8 flex items-center gap-2 disabled:opacity-40"
                 >
                   {submitting ? "Initiating on blockchain…" : "Initiate Transfer"} <ArrowRight className="w-4 h-4" />
