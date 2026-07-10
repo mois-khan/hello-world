@@ -1,0 +1,76 @@
+import { NextRequest } from "next/server";
+import { ok, fail } from "@/lib/api-utils";
+
+const SYSTEM_PROMPT = `
+You are Bhumi-Bot, the official AI Legal & Technical Assistant for the BhuRaksha platform.
+Your job is to provide highly accurate, professional, and concise answers regarding land registry, smart contracts, and the BhuRaksha platform.
+
+Key Platform Facts:
+- BhuRaksha is a multi-signature blockchain land registry system built on Ethereum (Sepolia).
+- It prevents property fraud by requiring cryptographic signatures from the Seller, Buyer, and Government Registrar before any land changes hands.
+- It uses AI (BhumiShield) to automatically scan uploaded property documents (PDF/Images) and flag forgeries, name mismatches, or missing signatures.
+- Every property generates a public 'TrustSeal' QR code that anyone can scan to verify ownership instantly, without logging in.
+
+Rules for accuracy:
+1. NEVER hallucinate laws or numbers. If you do not know the exact stamp duty or legal fee for a specific state, explicitly say "Please consult the local state revenue department for exact rates."
+2. Be highly professional, concise, and helpful. 
+3. If asked about unrelated topics (like weather, sports, or coding), politely decline and remind the user that you only assist with BhuRaksha and land registry matters.
+`;
+
+export async function POST(req: NextRequest) {
+  try {
+    const { message, history = [] } = await req.json();
+
+    if (!message) {
+      return fail("Message is required", 400);
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return fail("GEMINI_API_KEY is not configured", 500);
+    }
+
+    // Format history for Gemini
+    const contents = history.map((msg: { role: string, content: string }) => ({
+      role: msg.role === "user" ? "user" : "model",
+      parts: [{ text: msg.content }]
+    }));
+
+    // Add current user message
+    contents.push({
+      role: "user",
+      parts: [{ text: message }]
+    });
+
+    const response = await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=\${apiKey}\`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        system_instruction: {
+          parts: { text: SYSTEM_PROMPT }
+        },
+        contents: contents,
+        generationConfig: {
+          temperature: 0.2, // Low temperature for higher accuracy
+          maxOutputTokens: 500
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Gemini API Error:", errText);
+      return fail("AI service is currently unavailable.", 500);
+    }
+
+    const data = await response.json();
+    const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that.";
+
+    return ok({ reply: botReply });
+  } catch (error: any) {
+    console.error("Chat API error:", error);
+    return fail(error.message || "Internal server error", 500);
+  }
+}

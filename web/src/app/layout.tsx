@@ -19,6 +19,8 @@ export const metadata: Metadata = {
     "Blockchain land registry for tamper-evident ownership verification, multi-party transfers, and AI document integrity checks.",
 };
 
+import { BhumiBot } from "@/components/BhumiBot";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${noto.variable} font-sans antialiased`}>
         {children}
+        <BhumiBot />
       </body>
     </html>
   );
