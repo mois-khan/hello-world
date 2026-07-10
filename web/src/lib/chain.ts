@@ -23,14 +23,14 @@ export function getContract(runner?: Signer | Provider): Contract {
 
 const REGISTRAR_ROLE = "0x" + Buffer.from("REGISTRAR_ROLE").toString("hex").padEnd(64, "0").slice(0, 64);
 
-export async function useSimulator(): Promise<boolean> {
+export async function shouldUseSimulator(): Promise<boolean> {
   const available = await sim.isChainAvailable();
   const hasAddress = !!process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
   return !available || !hasAddress;
 }
 
 export async function getParcel(id: number): Promise<Parcel | null> {
-  if (await useSimulator()) return sim.simGetParcel(id);
+  if (await shouldUseSimulator()) return sim.simGetParcel(id);
   try {
     const contract = getContract();
     const [p, owner] = await Promise.all([
@@ -54,13 +54,13 @@ export async function getParcel(id: number): Promise<Parcel | null> {
 }
 
 export async function ownerOf(id: number): Promise<string> {
-  if (await useSimulator()) return sim.simOwnerOf(id);
+  if (await shouldUseSimulator()) return sim.simOwnerOf(id);
   const contract = getContract();
   return contract.ownerOf(id);
 }
 
 export async function getTransfer(id: number): Promise<TransferRequest | null> {
-  if (await useSimulator()) return sim.simGetTransfer(id);
+  if (await shouldUseSimulator()) return sim.simGetTransfer(id);
   try {
     const contract = getContract();
     const t = await contract.transfers(id);
@@ -79,7 +79,7 @@ export async function getTransfer(id: number): Promise<TransferRequest | null> {
 }
 
 export async function activeTransferOf(parcelId: number): Promise<number> {
-  if (await useSimulator()) return sim.simActiveTransferOf(parcelId);
+  if (await shouldUseSimulator()) return sim.simActiveTransferOf(parcelId);
   try {
     const contract = getContract();
     return Number(await contract.activeTransferOf(parcelId));
@@ -89,7 +89,7 @@ export async function activeTransferOf(parcelId: number): Promise<number> {
 }
 
 export async function isRegistrar(address: string): Promise<boolean> {
-  if (await useSimulator()) {
+  if (await shouldUseSimulator()) {
     const admin = process.env.DEMO_REGISTRAR_WALLET?.toLowerCase();
     return admin ? address.toLowerCase() === admin : true;
   }
@@ -105,7 +105,7 @@ export async function isRegistrar(address: string): Promise<boolean> {
 }
 
 export async function getHistory(parcelId: number): Promise<TimelineEvent[]> {
-  if (await useSimulator()) return sim.simGetHistory(parcelId);
+  if (await shouldUseSimulator()) return sim.simGetHistory(parcelId);
 
   try {
     const contract = getContract();
@@ -151,7 +151,7 @@ export async function registerParcel(
     documentHash: string;
   }
 ): Promise<{ parcelId: number; txHash: string }> {
-  if (await useSimulator()) {
+  if (await shouldUseSimulator()) {
     return sim.simRegisterParcel({ ...args, owner: args.owner });
   }
   const contract = getContract(signer);
@@ -177,7 +177,7 @@ export async function initiateTransfer(
   newDocumentHash: string
 ): Promise<{ transferId: number; txHash: string }> {
   const seller = await signer.getAddress();
-  if (await useSimulator()) {
+  if (await shouldUseSimulator()) {
     return sim.simInitiateTransfer(seller, parcelId, buyer, newDocumentHash);
   }
   const contract = getContract(signer);
@@ -191,7 +191,7 @@ export async function initiateTransfer(
 
 export async function buyerApprove(signer: Signer, transferId: number): Promise<{ txHash: string }> {
   const buyer = await signer.getAddress();
-  if (await useSimulator()) return sim.simBuyerApprove(buyer, transferId);
+  if (await shouldUseSimulator()) return sim.simBuyerApprove(buyer, transferId);
   const contract = getContract(signer);
   const tx = await contract.buyerApprove(transferId);
   const receipt = await tx.wait();
@@ -200,7 +200,7 @@ export async function buyerApprove(signer: Signer, transferId: number): Promise<
 
 export async function registrarFinalize(signer: Signer, transferId: number): Promise<{ txHash: string }> {
   const registrar = await signer.getAddress();
-  if (await useSimulator()) return sim.simRegistrarFinalize(registrar, transferId);
+  if (await shouldUseSimulator()) return sim.simRegistrarFinalize(registrar, transferId);
   const contract = getContract(signer);
   const tx = await contract.registrarFinalize(transferId);
   const receipt = await tx.wait();
@@ -213,7 +213,7 @@ export async function rejectTransfer(
   reason: string
 ): Promise<{ txHash: string }> {
   const actor = await signer.getAddress();
-  if (await useSimulator()) return sim.simRejectTransfer(actor, transferId, reason);
+  if (await shouldUseSimulator()) return sim.simRejectTransfer(actor, transferId, reason);
   const contract = getContract(signer);
   const tx = await contract.rejectTransfer(transferId, reason);
   const receipt = await tx.wait();
@@ -230,7 +230,7 @@ export async function listTransfers(filter?: { wallet?: string; role?: string })
 
 // Fix isRegistrar to use proper role hash
 export async function checkRegistrarRole(address: string): Promise<boolean> {
-  if (await useSimulator()) return true;
+  if (await shouldUseSimulator()) return true;
   try {
     const contract = getContract();
     const role = await contract.REGISTRAR_ROLE();
