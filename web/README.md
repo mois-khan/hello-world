@@ -1,4 +1,4 @@
-# BhumiTrust Web Application
+# BhuRaksha Web Application
 
 India's Trusted Land Registry Layer — production-ready Next.js frontend inspired by premium architectural UI design (black/white/neon-lime aesthetic with glassmorphism and 3D land parcel hero).
 

@@ -191,7 +191,7 @@ export default function PortalTransferPage() {
       <PageHeader
         title="Initiate Transfer"
         hindiTitle="हस्तांतरण प्रारंभ करें"
-        subtitle="Seller workflow — initiate a multi-party signed property transfer on BhoomiChain"
+        subtitle="Seller workflow — initiate a multi-party signed property transfer on BhuRaksha"
         breadcrumbs={[
           { label: "Citizen Portal", href: "/portal/parcels" },
           { label: "Initiate Transfer" },

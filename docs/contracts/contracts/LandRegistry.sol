@@ -46,7 +46,7 @@ contract LandRegistry is ERC721, AccessControl {
     event TransferCompleted(uint256 indexed transferId, uint256 indexed parcelId, address indexed newOwner);
     event TransferRejected(uint256 indexed transferId, address indexed by, string reason);
 
-    constructor() ERC721("BhoomiChain Land Title", "BHOOMI") {
+    constructor() ERC721("BhuRaksha Land Title", "BHURAKSHA") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(REGISTRAR_ROLE, msg.sender);
     }

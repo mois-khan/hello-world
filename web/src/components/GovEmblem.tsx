@@ -15,7 +15,7 @@ export function GovEmblem({ className = "w-12 h-12" }: { className?: string }) {
       </g>
       <circle cx="24" cy="24" r="5" fill="#138808" />
       <text x="24" y="27" textAnchor="middle" fill="white" fontSize="7" fontWeight="bold">
-        BT
+        BR
       </text>
     </svg>
   );

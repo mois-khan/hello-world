@@ -24,7 +24,7 @@ export async function analyzeDocument(
         "Altered plot area numerals",
         "Font weight mismatch in seller name block",
       ],
-      model: "bhumitrust-forensic-v1",
+      model: "bhuraksha-forensic-v1",
     };
   }
 
@@ -48,7 +48,7 @@ export async function analyzeDocument(
         : riskScore >= 40
         ? ["Minor forensic indicators — manual review recommended"]
         : ["No significant forgery indicators detected"],
-    model: "bhumitrust-forensic-v1",
+    model: "bhuraksha-forensic-v1",
   };
 }
 

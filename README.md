@@ -1,4 +1,4 @@
-# 🏛️ BhoomiChain — The Immutable Truth of Land Ownership
+# 🏛️ BhuRaksha — The Immutable Truth of Land Ownership
 
 > A blockchain-based, tamper-evident land registry for India.
 > Built for the **Digital India Hackathon** (Government domain) — Srinidhi Institute (SNIST).
@@ -9,7 +9,7 @@
 
 ## The one-line pitch (memorize this)
 
-> *"India has 6.2 crore undigitised land records and land disputes are the single largest source of civil litigation. BhoomiChain turns every property into a cryptographically-signed, tamper-proof record that any citizen can verify in 5 seconds by scanning a QR code — while AI catches forged documents **before** they ever poison the ledger."*
+> *"India has 6.2 crore undigitised land records and land disputes are the single largest source of civil litigation. BhuRaksha turns every property into a cryptographically-signed, tamper-proof record that any citizen can verify in 5 seconds by scanning a QR code — while AI catches forged documents **before** they ever poison the ledger."*
 
 ## Why judges will remember us (the 3 wow moments)
 
@@ -46,7 +46,7 @@ Infra       Hardhat local node · Vercel (frontend) · Supabase (data)
 ## Repo layout (target)
 
 ```
-bhoomichain/
+bhuraksha/
 ├── contracts/          # Solidity smart contracts + Hardhat
 ├── web/                # Next.js app (citizen portal + registrar dashboard + public verify)
 ├── docs/               # ← you are here

@@ -80,7 +80,7 @@ export function Navbar() {
           <div>
             <Link href="/" className="block">
               <h1 className="text-xl md:text-2xl font-bold text-gov-navy leading-tight">
-                Bhoomi<span className="text-gov-blue">Chain</span>
+                Bhu<span className="text-gov-blue">Raksha</span>
               </h1>
             </Link>
             <p className="text-xs md:text-sm text-gov-muted mt-0.5">

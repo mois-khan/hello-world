@@ -23,7 +23,7 @@ export async function GET(
 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj
 3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj
 4 0 obj<</Length 200>>stream
-BT /F1 14 Tf 50 700 Td (BhumiTrust Title Certificate) Tj
+BT /F1 14 Tf 50 700 Td (BhuRaksha Title Certificate) Tj
 0 -30 Td (Parcel ID: ${parcelId}) Tj
 0 -20 Td (Survey: ${parcel.surveyNumber}) Tj
 0 -20 Td (District: ${parcel.district}) Tj

@@ -65,7 +65,7 @@ export default function VerifyByIdPage() {
                   <div>
                     <div className="flex items-center gap-2 text-gov-green font-bold mb-3">
                       <ShieldCheck className="w-6 h-6" />
-                      Verified on BhoomiChain
+                      Verified on BhuRaksha
                     </div>
                     <h2 className="text-xl font-bold text-gov-navy">
                       Parcel #{parcel.id} · Survey {parcel.surveyNumber}

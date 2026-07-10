@@ -1,4 +1,4 @@
-# Phase-Wise Build Plan — BhoomiChain (48h · 3 devs)
+# Phase-Wise Build Plan — BhuRaksha (48h · 3 devs)
 
 Companion to [PRD.md](PRD.md) + [DESIGN.md](DESIGN.md). Build prompts for every task: [PROMPTS.md](PROMPTS.md).
 

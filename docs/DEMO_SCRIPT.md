@@ -1,4 +1,4 @@
-# Demo Script & Winning Strategy — BhoomiChain
+# Demo Script & Winning Strategy — BhuRaksha
 
 The document that wins the room. Rehearse the 5-min script until it's muscle memory.
 
@@ -8,7 +8,7 @@ The document that wins the room. Rehearse the 5-min script until it's muscle mem
 
 Judges remember **stories and stakes**, not feature tours. Frame everything around one fictional citizen:
 
-> **"Meet Priya. She inherited her family's land in Rangareddy. When she tried to sell it, a fraudster had already forged a deed and 'sold' the same plot to someone else. In today's India, Priya spends **7 years** in court. On BhoomiChain, this fraud is **impossible** — and here's why."**
+> **"Meet Priya. She inherited her family's land in Rangareddy. When she tried to sell it, a fraudster had already forged a deed and 'sold' the same plot to someone else. In today's India, Priya spends **7 years** in court. On BhuRaksha, this fraud is **impossible** — and here's why."**
 
 Then the demo *is* Priya's story unfolding. Every click resolves a stake.
 
@@ -20,7 +20,7 @@ Then the demo *is* Priya's story unfolding. Every click resolves a stake.
 > **Pre-flight (before judges arrive):** run `npm run demo:reset`; Hardhat node up; contract deployed; MetaMask has 3 accounts imported (Seller/Buyer/Registrar); 3 browser profiles/tabs open and logged into the right roles; the tampered demo deed file on the desktop; phone charged for the QR scan.
 
 ### Beat 0 — Hook (30s) — *Narrator*
-> "India has **6.2 crore undigitised land records**, and land disputes are the **single largest source of civil litigation** — cases drag on for *years*. The root cause? There's no single, tamper-proof source of truth for who owns what. We built one. It's called **BhoomiChain**."
+> "India has **6.2 crore undigitised land records**, and land disputes are the **single largest source of civil litigation** — cases drag on for *years*. The root cause? There's no single, tamper-proof source of truth for who owns what. We built one. It's called **BhuRaksha**."
 
 *(Screen: landing page with the pitch line + govt-styled hero.)*
 
@@ -29,7 +29,7 @@ Then the demo *is* Priya's story unfolding. Every click resolves a stake.
 
 - Open a parcel → show its **QR code**.
 - **Hand a judge your phone**: "Scan this."
-- Verify page loads: ✅ **Verified on BhoomiChain**, current owner, and the **full immutable ownership history** — every past transfer with a tx hash.
+- Verify page loads: ✅ **Verified on BhuRaksha**, current owner, and the **full immutable ownership history** — every past transfer with a tx hash.
 > "That history lives on the blockchain. No official can quietly rewrite it. A bank, a court, a buyer — anyone — can confirm ownership in 5 seconds."
 
 **Why it lands:** the judge *physically participates*. That's the moment they remember.
@@ -62,7 +62,7 @@ Then swap to the **genuine** deed → green report → **finalize (MetaMask sign
 > "The same plot can never be sold twice — the smart contract blocks it, and the registrar sees the attempt in real time."
 
 ### Beat 5 — Impact close (15s) — *Narrator*
-> "Register. Sign. Transfer. Verify — all tamper-proof, all in minutes instead of years. **For Priya, and for 6.2 crore records, that's the difference between trust and a decade in court.** BhoomiChain — the immutable truth of land ownership."
+> "Register. Sign. Transfer. Verify — all tamper-proof, all in minutes instead of years. **For Priya, and for 6.2 crore records, that's the difference between trust and a decade in court.** BhuRaksha — the immutable truth of land ownership."
 
 **Total: ~5 min.** Practice trimming to a **3-min** version (Beats 0,1,2,3,5) and a **90-sec** version (Beats 0,1,5) for shorter judge visits.
 

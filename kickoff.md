@@ -12,7 +12,7 @@
 
 - [ ] Node 20+, Git, MetaMask installed (`node -v`, `git --version`)
 - [ ] `.env.local` values ready from the **[Setup PDF](handouts/SETUP_CREDENTIALS.pdf)** (Supabase ×4, `ANTHROPIC_API_KEY`)
-- [ ] GitHub repo `bhoomichain` created, all 3 added, everyone cloned it
+- [ ] GitHub repo `bhuraksha` created, all 3 added, everyone cloned it
 - [ ] Copy the `docs/` folder into the repo so agents can read the specs
 - [ ] Agree: **Dev A = Chain**, **Dev B = Frontend**, **Dev C = Intelligence+Glue** (see [PARALLEL_WORKFLOW.md](docs/PARALLEL_WORKFLOW.md) §1)
 

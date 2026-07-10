@@ -1,4 +1,4 @@
-# Build Prompts — BhoomiChain
+# Build Prompts — BhuRaksha
 
 Copy-paste prompts for **Claude Code / Cursor**, one per task, mapped to [PHASE_WISE_PLAN.md](PHASE_WISE_PLAN.md).
 
@@ -7,7 +7,7 @@ Copy-paste prompts for **Claude Code / Cursor**, one per task, mapped to [PHASE_
 2. **Prepend this context primer to your first prompt of each session:**
 
 > **Context primer (paste once per session):**
-> "We're building BhoomiChain, a blockchain land registry for a 48h Digital India hackathon. Stack: Solidity + Hardhat + OpenZeppelin (ERC-721 + AccessControl), Next.js 14 App Router + React + Tailwind + shadcn/ui, ethers.js v6, Prisma + Supabase (Postgres/Storage/Realtime), Claude vision for forgery detection. Read `docs/PRD.md` and `docs/DESIGN.md` for full spec. Optimize for a working, polished, demo-able result over completeness. Match existing code style. Always add loading/error/empty states."
+> "We're building BhuRaksha, a blockchain land registry for a 48h Digital India hackathon. Stack: Solidity + Hardhat + OpenZeppelin (ERC-721 + AccessControl), Next.js 14 App Router + React + Tailwind + shadcn/ui, ethers.js v6, Prisma + Supabase (Postgres/Storage/Realtime), Claude vision for forgery detection. Read `docs/PRD.md` and `docs/DESIGN.md` for full spec. Optimize for a working, polished, demo-able result over completeness. Match existing code style. Always add loading/error/empty states."
 
 3. Work task-by-task; verify each runs before moving on. Commit after each ✅.
 
@@ -96,7 +96,7 @@ badge, and a link to /verify/[id]. Add loading/empty/error states.
 ```
 Build /verify/[id] as a server component (no auth). Read current owner (ownerOf) and parcel struct directly from
 chain via lib/chain, plus ParcelMeta from DB. Render an official-looking verification card: green 'Verified on
-BhoomiChain' badge, owner (masked name from User table if known, else wallet), parcel details, and a placeholder
+BhuRaksha' badge, owner (masked name from User table if known, else wallet), parcel details, and a placeholder
 'Ownership history' section (filled in Phase 3). Must load fast and feel authoritative.
 ```
 
@@ -234,7 +234,7 @@ point in <30s.
 ```
 Do a full polish pass: consistent spacing/typography, loading skeletons, empty states, friendly error toasts (no
 raw errors), animated tx-confirmation and 'signing…' states, the timeline draw-in animation, and mobile
-responsiveness for /verify/[id] (the QR-scan target). Add govt-seal styling and a subtle 'Powered by BhoomiChain'
+responsiveness for /verify/[id] (the QR-scan target). Add govt-seal styling and a subtle 'Powered by BhuRaksha'
 footer with the contract address.
 ```
 

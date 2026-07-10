@@ -56,7 +56,7 @@ function VerifyContent() {
 
     const result = getParcel(normalized);
     if (!result) {
-      setError("ULPIN not found in BhumiTrust registry. This parcel may not be digitised yet.");
+      setError("ULPIN not found in BhuRaksha registry. This parcel may not be digitised yet.");
       setParcel(null);
       setLoading(false);
       return;

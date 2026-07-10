@@ -81,7 +81,7 @@ export default function HomePage() {
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div>
                 <p className="text-gov-saffron text-sm font-semibold uppercase tracking-wide mb-2">
-                  Digital India Hackathon · BhoomiChain
+                  Digital India Hackathon · BhuRaksha
                 </p>
                 <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
                   One Nation, One Land Ledger
@@ -90,7 +90,7 @@ export default function HomePage() {
                   एक राष्ट्र, एक भूमि खाता
                 </p>
                 <p className="text-white/80 text-sm md:text-base leading-relaxed max-w-lg">
-                  BhoomiChain is a blockchain land registry where every transfer is cryptographically
+                  BhuRaksha is a blockchain land registry where every transfer is cryptographically
                   signed by all parties, permanently recorded on-chain, and instantly verifiable by any citizen.
                 </p>
 
@@ -138,7 +138,7 @@ export default function HomePage() {
           <div className="gov-notice flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
             <p>
-              <strong>Demo platform:</strong> BhoomiChain uses a local Hardhat node for on-chain records.
+              <strong>Demo platform:</strong> BhuRaksha uses a local Hardhat node for on-chain records.
               The chain is the source of truth; off-chain data mirrors it for search and files.
             </p>
           </div>
@@ -235,9 +235,9 @@ export default function HomePage() {
         <section className="py-12 px-4 md:px-8 bg-gov-blue-light border-t border-gov-border">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12">
             <FadeIn>
-              <h2 className="gov-section-title mb-4">About BhoomiChain</h2>
+              <h2 className="gov-section-title mb-4">About BhuRaksha</h2>
               <p className="text-gov-text leading-relaxed mb-4">
-                BhoomiChain creates a single, trusted, tamper-evident digital source of truth for land
+                BhuRaksha creates a single, trusted, tamper-evident digital source of truth for land
                 ownership in India. Every transfer requires cryptographic signatures from the seller,
                 buyer, and authorized registrar — with AI-powered document forgery detection and a
                 real-time fraud war-room for government officers.

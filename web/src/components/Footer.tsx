@@ -78,17 +78,17 @@ export function Footer() {
             <p className="text-gov-saffron text-xs font-semibold uppercase tracking-wide mb-3">
               Contact & Support
             </p>
-            <p className="text-white/70 text-sm">support@bhoomichain.gov.in</p>
+            <p className="text-white/70 text-sm">support@bhuraksha.gov.in</p>
             <p className="text-white/70 text-sm mt-2">Helpline: 1800-XXX-XXXX</p>
             <p className="text-white/50 text-xs mt-4 leading-relaxed">
-              BhoomiChain provides a tamper-evident blockchain land registry layer.
+              BhuRaksha provides a tamper-evident blockchain land registry layer.
               On-chain records are the source of truth for ownership.
             </p>
           </div>
         </div>
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between gap-4 text-xs text-white/50">
-          <p>© 2026 BhoomiChain. Digital India Hackathon demo. All rights reserved.</p>
+          <p>© 2026 BhuRaksha. Digital India Hackathon demo. All rights reserved.</p>
           <div className="flex gap-4">
             <span>Privacy Policy</span>
             <span>Terms of Use</span>

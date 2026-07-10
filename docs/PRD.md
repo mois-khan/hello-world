@@ -1,4 +1,4 @@
-# Product Requirements Document — BhoomiChain
+# Product Requirements Document — BhuRaksha
 
 **Version:** 1.0 · **Domain:** Government · **Event:** Digital India Hackathon (SNIST)
 **Status:** Approved for build · **Owner:** Team of 3

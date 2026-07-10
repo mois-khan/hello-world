@@ -1,4 +1,4 @@
-# Technical Design — BhoomiChain
+# Technical Design — BhuRaksha
 
 **Version:** 1.0 · Companion to [PRD.md](PRD.md) · Build plan in [PHASE_WISE_PLAN.md](PHASE_WISE_PLAN.md)
 
@@ -115,7 +115,7 @@ contract LandRegistry is ERC721, AccessControl {
     event TransferCompleted(uint256 indexed transferId, uint256 indexed parcelId, address indexed newOwner);
     event TransferRejected(uint256 indexed transferId, address indexed by, string reason);
 
-    constructor() ERC721("BhoomiChain Land Title", "BHOOMI") {
+    constructor() ERC721("BhuRaksha Land Title", "BHURAKSHA") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);   // govt admin
         _grantRole(REGISTRAR_ROLE, msg.sender);       // deployer is first registrar (demo convenience)
     }
@@ -378,7 +378,7 @@ Judge scans → /verify/123 (server component, no login)
 ## 11. Target folder structure
 
 ```
-bhoomichain/
+bhuraksha/
 ├── contracts/
 │   ├── contracts/LandRegistry.sol
 │   ├── scripts/deploy.js

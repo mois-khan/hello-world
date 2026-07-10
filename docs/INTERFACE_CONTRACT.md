@@ -1,4 +1,4 @@
-# 🔒 INTERFACE CONTRACT — BhoomiChain (SINGLE SOURCE OF TRUTH)
+# 🔒 INTERFACE CONTRACT — BhuRaksha (SINGLE SOURCE OF TRUTH)
 
 > **THIS FILE IS LAW.** Every dev and every AI agent (Claude Code / Cursor) MUST use these exact names, paths,
 > and shapes. If your code disagrees with this file, **your code is wrong** — fix the code, not this file.
@@ -32,12 +32,12 @@
 ## 1. Chain config (everyone hardcodes the same values)
 
 ```
-Network name      : BhoomiChain Local (Hardhat)
+Network name      : BhuRaksha Local (Hardhat)
 RPC URL           : http://127.0.0.1:8545
 Chain ID          : 31337        // decimal. hex 0x7A69
 Currency symbol   : ETH
 Contract name     : LandRegistry
-Token name/symbol : "BhoomiChain Land Title" / "BHOOMI"
+Token name/symbol : "BhuRaksha Land Title" / "BHURAKSHA"
 ```
 
 Deployed contract address is injected via `NEXT_PUBLIC_CONTRACT_ADDRESS` (see §5). **Never hardcode the address** — read it from env.

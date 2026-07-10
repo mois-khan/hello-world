@@ -14,7 +14,7 @@ const noto = Noto_Sans_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "BhoomiChain — One Nation, One Land Ledger",
+  title: "BhuRaksha — One Nation, One Land Ledger",
   description:
     "Blockchain land registry for tamper-evident ownership verification, multi-party transfers, and AI document integrity checks.",
 };

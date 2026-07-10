@@ -1,4 +1,4 @@
-# 🎤 Pitch Deck — BhoomiChain (8 slides)
+# 🎤 Pitch Deck — BhuRaksha (8 slides)
 
 **Total pitch: ~7 min** (≈2 min slides framing + ~5 min live demo woven in). Pairs with [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
 Design: minimal text, one big idea per slide, bold visuals. Palette: indigo `#1E3A8A` + saffron `#F59E0B` + green `#16A34A`.
@@ -11,13 +11,13 @@ Speaking roles: **Narrator** (story) · **Driver** (demo) · **Backup** (Q&A).
 ## SLIDE 1 — Hook / Title  ·  ~20s  ·  *Narrator*
 
 **On screen:**
-- Logo + **BhoomiChain**
+- Logo + **BhuRaksha**
 - Tagline: *"The Immutable Truth of Land Ownership"*
 - Sub: Blockchain Land Registry · Digital India Hackathon · Government Domain
 - One subtle visual: a land parcel → a chain link → a green verified shield
 
 **Say:**
-> "What if any citizen could prove who owns a piece of land — in 5 seconds, with zero chance of forgery? That's BhoomiChain."
+> "What if any citizen could prove who owns a piece of land — in 5 seconds, with zero chance of forgery? That's BhuRaksha."
 
 **Speaker note:** Open with energy. Don't read the tagline — say the hook question.
 
@@ -47,7 +47,7 @@ Small caption: *Fragmented records · manual verification · document forgery ·
 - Bottom band: **Permissioned blockchain + multi-party signatures + smart-contract validation**
 
 **Say:**
-> "Blockchain is the one technology built for exactly this. On BhoomiChain, every land transfer is **cryptographically signed by the buyer, the seller, AND a government registrar**, validated by a smart contract, and recorded permanently. No one — not even an official — can secretly rewrite history."
+> "Blockchain is the one technology built for exactly this. On BhuRaksha, every land transfer is **cryptographically signed by the buyer, the seller, AND a government registrar**, validated by a smart contract, and recorded permanently. No one — not even an official — can secretly rewrite history."
 
 **Speaker note:** This slide pre-answers the #1 judge question ("why not just a database?"). Say it with conviction.
 
@@ -125,10 +125,10 @@ Caption: *On-chain: ownership + hashes + history. Off-chain: files + search. Any
 **On screen:**
 - **Production roadmap:** Hyperledger Fabric consortium (district registrars as peers) · DigiLocker + Aadhaar e-sign · IPFS for documents · GIS/survey integration
 - Inspired by: 🇦🇪 UAE · 🇸🇪 Sweden digital land registries · 🇮🇳 Digital India
-- Final line, big: **"BhoomiChain — trust, verified on chain."**
+- Final line, big: **"BhuRaksha — trust, verified on chain."**
 
 **Say:**
-> "Our path to production is clear: Hyperledger Fabric for a state consortium, DigiLocker and Aadhaar for real identity, IPFS for documents. The model works — we've proven it today. **BhoomiChain: trust, verified on chain.** Thank you."
+> "Our path to production is clear: Hyperledger Fabric for a state consortium, DigiLocker and Aadhaar for real identity, IPFS for documents. The model works — we've proven it today. **BhuRaksha: trust, verified on chain.** Thank you."
 
 **Speaker note:** End confident, land the tagline, smile, invite questions.
 

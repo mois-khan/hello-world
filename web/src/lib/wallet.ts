@@ -41,7 +41,7 @@ export async function ensureCorrectNetwork(): Promise<void> {
         params: [
           {
             chainId: `0x${CHAIN_ID.toString(16)}`,
-            chainName: "BhoomiChain Local",
+            chainName: "BhuRaksha Local",
             rpcUrls: [process.env.NEXT_PUBLIC_CHAIN_RPC || "http://127.0.0.1:8545"],
             nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
           },
