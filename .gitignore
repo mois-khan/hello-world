@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+build/
+
+# Hardhat / Solidity
+cache/
+artifacts/
+typechain/
+typechain-types/
+coverage/
+coverage.json
+
+# Environment & secrets (never commit)
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Prisma local DB
+**/prisma/dev.db
+**/prisma/dev.db-journal
+
+# Local uploads / storage
+web/storage/
+
+# Cursor (local agent metadata)
+.cursor/
+
+# Package manager
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Misc
+*.pem

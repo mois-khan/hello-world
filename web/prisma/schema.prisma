@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  wallet    String   @unique
+  name      String
+  maskedId  String?
+  role      String   @default("CITIZEN")
+  createdAt DateTime @default(now())
+}
+
+model ParcelMeta {
+  id           Int        @id
+  ulpin        String?    @unique
+  surveyNumber String
+  district     String
+  addressText  String
+  lat          Float
+  lng          Float
+  area         Int
+  ownerWallet  String
+  currentDocId String?
+  createdAt    DateTime   @default(now())
+  documents    Document[]
+  fraudAlerts  FraudAlert[]
+}
+
+model Document {
+  id         String     @id @default(cuid())
+  parcelId   Int
+  parcel     ParcelMeta @relation(fields: [parcelId], references: [id])
+  storageUrl String
+  sha256     String
+  aiReport   String?
+  uploadedBy String
+  createdAt  DateTime   @default(now())
+}
+
+model TransferMeta {
+  id              Int      @id
+  parcelId        Int
+  seller          String
+  buyer           String
+  status          String
+  newDocumentHash String?
+  createdAt       DateTime @default(now())
+}
+
+model FraudAlert {
+  id        String     @id @default(cuid())
+  parcelId  Int
+  parcel    ParcelMeta @relation(fields: [parcelId], references: [id])
+  type      String
+  severity  String
+  detail    String
+  resolved  Boolean    @default(false)
+  createdAt DateTime   @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  action    String
+  target    String
+  meta      String?
+  createdAt DateTime @default(now())
+}
+
+model ChainEvent {
+  id        String   @id @default(cuid())
+  parcelId  Int?
+  transferId Int?
+  type      String
+  fromAddr  String?
+  toAddr    String?
+  txHash    String
+  blockNum  Int
+  at        Int
+  createdAt DateTime @default(now())
+}
+
+model SimParcel {
+  id            Int    @id
+  surveyNumber  String
+  district      String
+  geo           String
+  area          Int
+  documentHash  String
+  registeredAt  Int
+  status        String
+  ownerWallet   String
+}
+
+model SimTransfer {
+  id              Int    @id
+  parcelId        Int
+  seller          String
+  buyer           String
+  newDocumentHash String
+  status          String
+  createdAt       Int
+}
