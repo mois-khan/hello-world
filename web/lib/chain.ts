@@ -21,7 +21,17 @@ export async function registerParcel(
   const contract = getContract(signer);
   const tx = await contract.registerParcel(args.owner, args.surveyNumber, args.district, args.geo, args.area, args.documentHash);
   const receipt = await tx.wait();
-  return { parcelId: 1, txHash: receipt.hash };
+  
+  // Extract parcelId from the ParcelRegistered event
+  const event = receipt.logs
+    .map((log: any) => {
+      try { return contract.interface.parseLog(log); } catch (e) { return null; }
+    })
+    .find((e: any) => e && e.name === 'ParcelRegistered');
+    
+  const parcelId = event ? Number(event.args[0]) : 0;
+  
+  return { parcelId, txHash: receipt.hash };
 }
 
 export async function initiateTransfer(
@@ -56,7 +66,17 @@ export async function rejectTransfer(signer: Signer, transferId: number, reason:
 
 export async function getParcel(id: number): Promise<Parcel> {
   const contract = getContract();
-  return await contract.parcels(id);
+  const p = await contract.parcels(id);
+  return {
+    id: Number(p.id),
+    surveyNumber: p.surveyNumber,
+    district: p.district,
+    geo: p.geo,
+    area: Number(p.area),
+    documentHash: p.documentHash,
+    registeredAt: new Date(Number(p.registeredAt) * 1000),
+    status: Number(p.status) === 0 ? 'ACTIVE' : 'IN_TRANSFER'
+  };
 }
 
 export async function ownerOf(id: number): Promise<string> {
