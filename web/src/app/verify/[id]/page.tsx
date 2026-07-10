@@ -74,7 +74,10 @@ export default function VerifyByIdPage() {
                     <p className="mt-4">
                       <span className="metric-label">Current Owner</span>
                       <br />
-                      <span className="font-mono font-semibold">{shortenAddress(parcel.owner)}</span>
+                      {parcel.ownerName && (
+                        <span className="font-bold text-gov-navy block">{parcel.ownerName}</span>
+                      )}
+                      <span className="font-mono font-semibold text-sm text-gov-muted">{shortenAddress(parcel.owner)}</span>
                     </p>
                     <p className="mt-2 text-sm">
                       Status: <strong>{parcel.status}</strong> · Area: {parcel.area} sq.ft

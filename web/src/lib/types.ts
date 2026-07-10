@@ -13,6 +13,7 @@ export interface Parcel {
   registeredAt: number;
   status: ParcelStatus;
   owner: string;
+  ownerName?: string;
   ulpin?: string;
 }
 

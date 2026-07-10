@@ -23,6 +23,11 @@ export async function GET(
     const parcel = await mergeParcelWithMeta(parcelId);
     if (!parcel) return fail("Parcel not found", 404);
 
+    const user = await prisma.user.findUnique({ where: { wallet: parcel.owner } });
+    if (user && user.name) {
+      parcel.ownerName = user.name;
+    }
+
     const meta = await prisma.parcelMeta.findUnique({ where: { id: parcelId } });
     const history = await getHistory(parcelId);
 
