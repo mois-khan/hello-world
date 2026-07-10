@@ -3,7 +3,7 @@ import React from 'react';
 // Define common properties for consistent styling with website theme
 const iconSize = 24;
 const primaryColor = '#3ecf8e'; // Main brand green
-const goldColor = 'hsl(43, 80%, 88%)'; // Gold/cream color from website
+// const goldColor = 'hsl(43, 80%, 88%)'; // Gold/cream color from website
 const strokeWidth = 2;
 const iconStyle = { display: 'block' };
 

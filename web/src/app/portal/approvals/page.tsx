@@ -38,6 +38,21 @@ export default function ApprovalsPage() {
     }
   };
 
+  const reject = async (tid: number) => {
+    const reason = window.prompt("Reason for rejection:");
+    if (!reason) return;
+    setLoading(tid);
+    try {
+      const addr = wallet || (await connectWallet()).address;
+      await bhumiApi.chainAction({ action: "reject", actor: addr, transferId: tid, reason });
+      await load(addr);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Rejection failed");
+    } finally {
+      setLoading(null);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-surface-light">
       <Navbar />
@@ -61,13 +76,22 @@ export default function ApprovalsPage() {
                   Seller {shortenAddress(t.seller)} → You
                 </p>
               </div>
-              <button
-                onClick={() => approve(t.id)}
-                disabled={loading === t.id}
-                className="gov-btn-primary text-sm disabled:opacity-40"
-              >
-                {loading === t.id ? "Signing…" : "Review & Sign"}
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => approve(t.id)}
+                  disabled={loading === t.id}
+                  className="gov-btn-primary text-sm disabled:opacity-40"
+                >
+                  {loading === t.id ? "Signing…" : "Review & Sign"}
+                </button>
+                <button
+                  onClick={() => reject(t.id)}
+                  disabled={loading === t.id}
+                  className="gov-btn-danger text-sm disabled:opacity-40 bg-red-600 text-white px-4 py-2 rounded font-medium"
+                >
+                  {loading === t.id ? "Rejecting…" : "Reject"}
+                </button>
+              </div>
             </div>
           ))}
         </div>

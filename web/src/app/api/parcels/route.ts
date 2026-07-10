@@ -14,10 +14,17 @@ export async function GET(req: NextRequest) {
     const district = searchParams.get("district")?.toLowerCase();
 
     const metas = await prisma.parcelMeta.findMany();
+    const simParcels = await prisma.simParcel.findMany();
+    
+    const allParcelIds = Array.from(new Set([
+      ...metas.map(m => m.id),
+      ...simParcels.map(sp => sp.id)
+    ]));
+
     const parcels: Parcel[] = [];
 
-    for (const m of metas) {
-      const merged = await mergeParcelWithMeta(m.id);
+    for (const id of allParcelIds) {
+      const merged = await mergeParcelWithMeta(id);
       if (!merged) continue;
       if (owner && merged.owner.toLowerCase() !== owner) continue;
       if (district && !merged.district.toLowerCase().includes(district)) continue;

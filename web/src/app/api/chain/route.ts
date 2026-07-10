@@ -4,6 +4,8 @@ import * as sim from "@/lib/simulator";
 import { scanTransfer } from "@/lib/fraud";
 import { prisma } from "@/lib/db";
 import { ensureSeeded } from "@/lib/seed";
+import { logAudit } from "@/lib/audit";
+import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,6 +30,7 @@ export async function POST(req: NextRequest) {
           update: { status: "PendingBuyer" },
         });
         await scanTransfer(result.transferId);
+        await logAudit(seller, "TRANSFER_INITIATE", parcelId.toString(), JSON.stringify({ buyer, transferId: result.transferId }));
         return ok(result);
       }
       case "buyerApprove": {
@@ -37,6 +40,7 @@ export async function POST(req: NextRequest) {
           where: { id: transferId },
           data: { status: "PendingRegistrar" },
         });
+        await logAudit(buyer, "TRANSFER_APPROVE", transferId.toString());
         return ok(result);
       }
       case "registrarFinalize": {
@@ -44,18 +48,27 @@ export async function POST(req: NextRequest) {
         const result = await sim.simRegistrarFinalize(registrar, transferId);
         const t = await prisma.transferMeta.findUnique({ where: { id: transferId } });
         if (t) {
-          await prisma.transferMeta.update({ where: { id: transferId }, data: { status: "Completed" } });
+          const timestamp = Date.now();
+          const dataToHash = `${transferId}${t.seller}${t.buyer}${t.parcelId}${timestamp}${result.txHash}`;
+          const verificationHash = crypto.createHash("sha256").update(dataToHash).digest("hex");
+          
+          await prisma.transferMeta.update({ 
+            where: { id: transferId }, 
+            data: { status: "Completed", verificationHash } 
+          });
           await prisma.parcelMeta.update({
             where: { id: t.parcelId },
             data: { ownerWallet: t.buyer },
           });
+          await logAudit(registrar, "TRANSFER_FINALIZE", transferId.toString(), JSON.stringify({ verificationHash }));
         }
         return ok(result);
       }
       case "reject": {
         const { actor, transferId, reason } = body;
         const result = await sim.simRejectTransfer(actor, transferId, reason);
-        await prisma.transferMeta.update({ where: { id: transferId }, data: { status: "Rejected" } });
+        await prisma.transferMeta.update({ where: { id: transferId }, data: { status: "Rejected", rejectionReason: reason } });
+        await logAudit(actor, "TRANSFER_REJECT", transferId.toString(), JSON.stringify({ reason }));
         return ok(result);
       }
       case "register": {
@@ -85,6 +98,7 @@ export async function POST(req: NextRequest) {
           },
           update: { ownerWallet: owner.toLowerCase(), ulpin },
         });
+        await logAudit(owner, "PARCEL_REGISTER", result.parcelId.toString());
         return ok(result);
       }
       default:

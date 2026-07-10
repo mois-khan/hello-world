@@ -50,6 +50,8 @@ model TransferMeta {
   buyer           String
   status          String
   newDocumentHash String?
+  verificationHash String?
+  rejectionReason  String?
   createdAt       DateTime @default(now())
 }
 

@@ -24,6 +24,7 @@ function TransferContent() {
   const [transferId, setTransferId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loadingParcel, setLoadingParcel] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     const id = searchParams.get("parcelId");
@@ -57,13 +58,21 @@ function TransferContent() {
 
     setSubmitting(true);
     try {
+      let newDocumentHash = "0x" + "e".repeat(64);
+      if (file) {
+        const uploadRes = await bhumiApi.uploadDocument(file, id);
+        if (uploadRes.sha256) {
+          newDocumentHash = uploadRes.sha256;
+        }
+      }
+
       const seller = (await connectWallet().catch(() => null))?.address ?? DEMO_WALLETS.seller;
       const result = await bhumiApi.chainAction({
         action: "initiate",
         seller,
         parcelId: id,
         buyer: buyerWallet,
-        newDocumentHash: "0x" + "e".repeat(64),
+        newDocumentHash,
       });
       setTransferId(result.transferId ?? null);
       await bhumiApi.scanFraud({ transferId: result.transferId, parcelId: id });
@@ -124,6 +133,17 @@ function TransferContent() {
                     value={buyerWallet}
                     onChange={(e) => setBuyerWallet(e.target.value)}
                     className="gov-input mt-2 font-mono text-sm"
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <label className="metric-label" htmlFor="title-document">Title Document (Sale Deed)</label>
+                  <input
+                    id="title-document"
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    className="gov-input mt-2"
                   />
                 </div>
 

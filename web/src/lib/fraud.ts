@@ -6,8 +6,7 @@ import { activeTransferOf, getParcel, ownerOf } from "./chain";
 const DEMO_FORGED_HASH = "0x" + "dead".repeat(8);
 
 export async function analyzeDocument(
-  sha256: string,
-  onChainHash?: string | null
+  sha256: string
 ): Promise<Omit<AiReport, "hashMatch" | "sha256">> {
   if (process.env.DEMO_FORCE_REPORT === "true" || sha256.toLowerCase().includes("dead")) {
     return {
@@ -57,7 +56,7 @@ export async function buildAiReport(
   onChainHash?: string | null
 ): Promise<AiReport> {
   const hashMatch = onChainHash ? hashesMatch(sha256, onChainHash) : null;
-  const forensic = await analyzeDocument(sha256, onChainHash);
+  const forensic = await analyzeDocument(sha256);
 
   if (hashMatch === false) {
     return {

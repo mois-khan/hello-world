@@ -5,15 +5,18 @@ import { BrowserProvider, type Signer } from "ethers";
 const CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || 31337);
 
 let cachedAddress: string | null = null;
+let cachedProvider: BrowserProvider | null = null;
 
 export async function connectWallet(): Promise<{ address: string; signer: Signer }> {
   if (typeof window === "undefined" || !window.ethereum) {
     throw new Error("MetaMask not found. Install MetaMask or use demo mode.");
   }
   await ensureCorrectNetwork();
-  const provider = new BrowserProvider(window.ethereum);
-  const accounts = await provider.send("eth_requestAccounts", []);
-  const signer = await provider.getSigner();
+  if (!cachedProvider) {
+    cachedProvider = new BrowserProvider(window.ethereum);
+  }
+  const accounts = await cachedProvider.send("eth_requestAccounts", []);
+  const signer = await cachedProvider.getSigner();
   cachedAddress = accounts[0];
   return { address: accounts[0], signer };
 }

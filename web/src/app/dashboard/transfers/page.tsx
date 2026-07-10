@@ -43,6 +43,25 @@ export default function DashboardTransfersPage() {
     }
   };
 
+  const reject = async (tid: number) => {
+    const reason = window.prompt("Reason for rejection:");
+    if (!reason) return;
+    setLoading(tid);
+    try {
+      await bhumiApi.chainAction({
+        action: "reject",
+        actor: DEMO_WALLETS.registrar,
+        transferId: tid,
+        reason,
+      });
+      load();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Rejection failed");
+    } finally {
+      setLoading(null);
+    }
+  };
+
   const runDocCheck = async (tid: number, parcelId: number) => {
     try {
       const data = await bhumiApi.getParcel(parcelId);
@@ -93,6 +112,13 @@ export default function DashboardTransfersPage() {
                   className="gov-btn-primary text-sm disabled:opacity-40"
                 >
                   {loading === t.id ? "Finalizing…" : "Finalize on Chain"}
+                </button>
+                <button
+                  onClick={() => reject(t.id)}
+                  disabled={loading === t.id || t.status !== "PendingRegistrar"}
+                  className="gov-btn-danger text-sm disabled:opacity-40 bg-red-600 text-white px-4 py-2 rounded font-medium"
+                >
+                  {loading === t.id ? "Rejecting…" : "Reject Transfer"}
                 </button>
               </div>
             </div>
