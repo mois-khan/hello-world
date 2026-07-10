@@ -1,0 +1,75 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  wallet    String   @unique
+  name      String
+  maskedId  String? // "XXXX-XXXX-1234" Aadhaar-style, mocked
+  role      Role     @default(CITIZEN)
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  CITIZEN
+  REGISTRAR
+  ADMIN
+}
+
+model ParcelMeta {
+  id           Int        @id // == on-chain parcelId
+  surveyNumber String
+  district     String
+  addressText  String
+  lat          Float
+  lng          Float
+  area         Int
+  currentDocId String?
+  createdAt    DateTime   @default(now())
+  documents    Document[]
+}
+
+model Document {
+  id         String     @id @default(cuid())
+  parcelId   Int
+  parcel     ParcelMeta @relation(fields: [parcelId], references: [id])
+  storageUrl String // Supabase Storage
+  sha256     String
+  aiReport   Json? // { riskScore, verdict, reasons[], model }
+  uploadedBy String
+  createdAt  DateTime   @default(now())
+}
+
+model TransferMeta {
+  id        Int      @id // == on-chain transferId
+  parcelId  Int
+  seller    String
+  buyer     String
+  status    String
+  createdAt DateTime @default(now())
+}
+
+model FraudAlert {
+  id        String   @id @default(cuid())
+  parcelId  Int
+  type      String // DOUBLE_SALE | OWNERSHIP_MISMATCH | RAPID_FLIP | FORGED_DOC
+  severity  String // LOW | MED | HIGH
+  detail    String
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  action    String
+  target    String
+  meta      Json?
+  createdAt DateTime @default(now())
+}
