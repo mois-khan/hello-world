@@ -5,18 +5,78 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageHeader } from "@/components/PageHeader";
 import { bhumiApi } from "@/lib/api-client";
-import { connectWallet } from "@/lib/wallet";
-import type { TransferRequest } from "@/lib/types";
-import { shortenAddress } from "@/lib/wallet";
+import { connectWallet, shortenAddress } from "@/lib/wallet";
+import type { TransferRequest, Parcel } from "@/lib/types";
+import { FileSignature } from "lucide-react";
+
+function StampDutyChallan({ parcel }: { parcel: Parcel }) {
+  const baseRate = 5000;
+  const propertyValue = parcel.area * baseRate;
+  const stampDuty = propertyValue * 0.06;
+  const regFee = propertyValue * 0.01;
+  const total = propertyValue + stampDuty + regFee;
+
+  const formatINR = (val: number) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
+
+  return (
+    <div className="mt-4 border-2 border-dashed border-gov-blue/30 bg-gov-blue-light/10 p-5 rounded-lg relative overflow-hidden shadow-inner">
+      <div className="absolute top-0 right-0 bg-gov-blue text-white text-[10px] px-3 py-1 font-bold uppercase tracking-wider rounded-bl-lg">Official Challan</div>
+      <h4 className="font-bold text-gov-navy text-sm mb-4 border-b border-gov-blue/20 pb-2 flex items-center gap-2">
+        <FileSignature className="w-4 h-4 text-gov-blue" />
+        State Stamp Duty & Registration Assessment
+      </h4>
+      
+      <div className="space-y-3 text-sm">
+        <div className="flex justify-between text-gov-muted">
+          <span>Property Area</span>
+          <span>{parcel.area} sq.ft</span>
+        </div>
+        <div className="flex justify-between text-gov-muted">
+          <span>Estimated Circle Rate (₹{baseRate}/sq.ft)</span>
+          <span>{formatINR(propertyValue)}</span>
+        </div>
+        <div className="flex justify-between text-gov-muted">
+          <span>State Stamp Duty (6%)</span>
+          <span className="text-red-600 font-medium">+{formatINR(stampDuty)}</span>
+        </div>
+        <div className="flex justify-between text-gov-muted border-b border-gov-blue/20 pb-3">
+          <span>Registration Fee (1%)</span>
+          <span className="text-red-600 font-medium">+{formatINR(regFee)}</span>
+        </div>
+        <div className="flex justify-between font-bold text-gov-navy pt-1 text-lg">
+          <span>Total Payable</span>
+          <span>{formatINR(total)}</span>
+        </div>
+      </div>
+      <p className="text-[11px] text-gov-muted mt-4 text-center italic bg-white/50 p-2 rounded">
+        By cryptographically signing this transfer, the Total Payable amount will be automatically deducted from your linked wallet and remitted to the State Revenue Department.
+      </p>
+    </div>
+  );
+}
 
 export default function ApprovalsPage() {
   const [transfers, setTransfers] = useState<TransferRequest[]>([]);
+  const [parcels, setParcels] = useState<Record<number, Parcel>>({});
   const [wallet, setWallet] = useState("");
   const [loading, setLoading] = useState<number | null>(null);
 
   const load = async (w: string) => {
     const data = await bhumiApi.getTransfers(w);
-    setTransfers(data.filter((t) => t.status === "PendingBuyer"));
+    const pending = data.filter((t) => t.status === "PendingBuyer");
+    setTransfers(pending);
+
+    const parcelMap: Record<number, Parcel> = {};
+    for (const t of pending) {
+      if (!parcelMap[t.parcelId]) {
+        try {
+          const res = await bhumiApi.getParcel(t.parcelId);
+          parcelMap[t.parcelId] = res.parcel;
+        } catch {}
+      }
+    }
+    setParcels(parcelMap);
   };
 
   useEffect(() => {
@@ -59,52 +119,44 @@ export default function ApprovalsPage() {
       <PageHeader
         title="Buyer Approvals"
         hindiTitle="खरीदार अनुमोदन"
-        subtitle="Review and cryptographically sign incoming property transfers"
+        subtitle="Review Stamp Duty Challans and cryptographically sign incoming property transfers"
         breadcrumbs={[{ label: "Buyer Approvals" }]}
       />
 
       <main id="main-content" className="flex-1 py-10 px-4 md:px-8">
-        <div className="max-w-3xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-6">
           {transfers.length === 0 && (
             <p className="gov-card p-6 text-center text-gov-muted">No pending approvals for your wallet</p>
           )}
           {transfers.map((t) => (
-            <div key={t.id} className="gov-card p-5 flex justify-between items-center gap-4 flex-wrap">
-              <div>
-                <p className="font-semibold">Transfer #{t.id} · Parcel {t.parcelId}</p>
-                <p className="text-sm text-gov-muted">
-                  Seller {shortenAddress(t.seller)} → You
-                </p>
+            <div key={t.id} className="gov-card p-6 flex flex-col gap-2">
+              <div className="flex justify-between items-start gap-4 flex-wrap border-b border-gov-border pb-4">
+                <div>
+                  <p className="font-bold text-gov-navy text-lg">Transfer #{t.id}</p>
+                  <p className="text-sm text-gov-muted mt-1">
+                    Parcel {t.parcelId} · Seller {shortenAddress(t.seller)} → You
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => approve(t.id)}
+                    disabled={loading === t.id}
+                    className="gov-btn-primary text-sm disabled:opacity-40"
+                  >
+                    {loading === t.id ? "Signing…" : "Pay & Sign Transfer"}
+                  </button>
+                  <button
+                    onClick={() => reject(t.id)}
+                    disabled={loading === t.id}
+                    className="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-md font-semibold text-sm disabled:opacity-40 transition-colors"
+                  >
+                    Reject
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => approve(t.id)}
-                  disabled={loading === t.id}
-                  className="gov-btn-primary text-sm disabled:opacity-40"
-                >
-                  {loading === t.id ? "Signing…" : "Review & Sign"}
-                </button>
-                <button
-                  onClick={async () => {
-                    const reason = prompt("Enter reason for rejection:");
-                    if (!reason) return;
-                    setLoading(t.id);
-                    try {
-                      const addr = wallet || (await connectWallet()).address;
-                      await bhumiApi.chainAction({ action: "reject", actor: addr, transferId: t.id, reason });
-                      await load(addr);
-                    } catch (e) {
-                      alert(e instanceof Error ? e.message : "Rejection failed");
-                    } finally {
-                      setLoading(null);
-                    }
-                  }}
-                  disabled={loading === t.id}
-                  className="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-md font-semibold text-sm disabled:opacity-40 transition-colors"
-                >
-                  Reject
-                </button>
-              </div>
+
+              {parcels[t.parcelId] && <StampDutyChallan parcel={parcels[t.parcelId]} />}
+              
             </div>
           ))}
         </div>
