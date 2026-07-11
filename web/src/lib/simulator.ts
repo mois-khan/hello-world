@@ -136,17 +136,20 @@ export async function simBuyerApprove(buyer: string, transferId: number, finalDo
   return { txHash };
 }
 
-export async function simRegistrarFinalize(registrar: string, transferId: number): Promise<{ txHash: string }> {
+export async function simRegistrarFinalize(registrar: string, transferId: number, finalDocumentHash?: string): Promise<{ txHash: string }> {
   const t = await prisma.simTransfer.findUnique({ where: { id: transferId } });
   if (!t || t.status !== "PendingRegistrar") throw new Error("Wrong state");
   const now = Math.floor(Date.now() / 1000);
-  await prisma.simTransfer.update({ where: { id: transferId }, data: { status: "Completed" } });
+  
+  const finalHash = finalDocumentHash || t.newDocumentHash;
+
+  await prisma.simTransfer.update({ where: { id: transferId }, data: { status: "Completed", newDocumentHash: finalHash } });
   await prisma.simParcel.update({
     where: { id: t.parcelId },
     data: {
       status: "Active",
       ownerWallet: t.buyer,
-      documentHash: t.newDocumentHash,
+      documentHash: finalHash,
     },
   });
   const txHash = `sim-finalize-${transferId}`;

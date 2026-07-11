@@ -153,15 +153,16 @@ function generateHTML(data: any) {
 
         .signature-block {
           text-align: center;
-          width: 250px;
+          width: 200px;
         }
 
         .signature-img {
-          width: 200px;
-          height: 80px;
+          width: 150px;
+          height: 60px;
           object-fit: contain;
           border-bottom: 1px solid #000;
-          margin-bottom: 10px;
+          margin: 0 auto 10px auto;
+          display: block;
         }
 
         .stamp {
@@ -271,6 +272,14 @@ function generateHTML(data: any) {
             <div><strong>${data.type === 'transfer' ? data.buyerName : data.ownerName}</strong></div>
             <div style="font-size:12px; color:#666;">${data.type === 'transfer' ? 'Vendee / Buyer' : 'Owner'}</div>
           </div>
+          
+          ${data.type === 'transfer' ? `
+          <div class="signature-block">
+            ${data.registrarSignature ? `<img src="${data.registrarSignature}" class="signature-img" />` : '<div class="signature-img"></div>'}
+            <div><strong>Registrar</strong></div>
+            <div style="font-size:12px; color:#666;">State Approving Authority</div>
+          </div>
+          ` : ''}
         </div>
 
         <div class="stamp">
@@ -295,6 +304,14 @@ export async function POST(req: Request) {
       if (fs.existsSync(dataFile)) {
         const savedData = JSON.parse(fs.readFileSync(dataFile, 'utf-8'));
         data = { ...savedData, buyerSignature: data.buyerSignature };
+        fs.writeFileSync(dataFile, JSON.stringify(data));
+      }
+    } else if (data.action === "sign-registrar") {
+      const dataFile = path.join(storageDir, `doc-data-${data.parcelId}.json`);
+      if (fs.existsSync(dataFile)) {
+        const savedData = JSON.parse(fs.readFileSync(dataFile, 'utf-8'));
+        data = { ...savedData, registrarSignature: data.registrarSignature };
+        fs.writeFileSync(dataFile, JSON.stringify(data));
       }
     } else if (data.type === 'transfer') {
       fs.writeFileSync(path.join(storageDir, `doc-data-${data.parcelId}.json`), JSON.stringify(data));

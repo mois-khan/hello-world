@@ -30,10 +30,39 @@ export default function DashboardTransfersPage() {
     }
     setLoading(tid);
     try {
+      const sigHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><text x="20" y="50" font-family="cursive" font-size="28" fill="#1e293b">Govt. Registrar</text></svg>`;
+      const res = await fetch("/api/document/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sign-registrar",
+          parcelId,
+          registrarSignature: "data:image/svg+xml;base64," + window.btoa(sigHtml)
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error("Failed to generate final document");
+
+      const binaryString = window.atob(data.pdfBase64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `TitleDeed_Final_Transfer_${tid}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
       await bhumiApi.chainAction({
         action: "registrarFinalize",
         registrar: DEMO_WALLETS.registrar,
         transferId: tid,
+        finalDocumentHash: data.documentHash,
       });
       await bhumiApi.scanFraud({ transferId: tid, parcelId });
       load();

@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
         return ok(result);
       }
       case "registrarFinalize": {
-        const { registrar, transferId } = body;
-        const result = await sim.simRegistrarFinalize(registrar, transferId);
+        const { registrar, transferId, finalDocumentHash } = body;
+        const result = await sim.simRegistrarFinalize(registrar, transferId, finalDocumentHash);
         const t = await prisma.transferMeta.findUnique({ where: { id: transferId } });
         if (t) {
           const timestamp = Date.now();
