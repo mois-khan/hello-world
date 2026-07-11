@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { connectWallet, getConnectedAddress, shortenAddress, disconnectWallet } from "@/lib/wallet";
-import { Wallet, LogOut } from "lucide-react";
+import { Wallet, LogOut, ChevronDown } from "lucide-react";
 
 import { DEMO_WALLETS } from "@/lib/demo-constants";
 
@@ -16,6 +16,7 @@ export function WalletButton() {
   const [address, setAddress] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     setAddress(getConnectedAddress());
@@ -37,8 +38,24 @@ export function WalletButton() {
     try {
       const { address: addr } = await connectWallet();
       setAddress(addr);
+      setShowDropdown(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Connection failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const connectDemo = useCallback(async (demoAddress: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const { address: addr } = await connectWallet(demoAddress);
+      setAddress(addr);
+      setShowDropdown(false);
+      window.location.reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Demo connection failed");
     } finally {
       setLoading(false);
     }
@@ -69,14 +86,50 @@ export function WalletButton() {
           </button>
         </div>
       ) : (
-        <button
-          onClick={connect}
-          disabled={loading}
-          className="gov-btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
-        >
-          <Wallet className="w-3.5 h-3.5" />
-          {loading ? "Connecting…" : "Connect Wallet"}
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            disabled={loading}
+            className="gov-btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
+          >
+            <Wallet className="w-3.5 h-3.5" />
+            {loading ? "Connecting…" : "Select Persona"}
+            <ChevronDown className="w-3 h-3 opacity-50" />
+          </button>
+          
+          {showDropdown && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 shadow-lg rounded-md overflow-hidden z-50">
+              <button
+                onClick={() => connectDemo(DEMO_WALLETS.seller)}
+                className="w-full text-left px-4 py-2 text-xs hover:bg-slate-50 border-b border-slate-100"
+              >
+                <div className="font-semibold text-gov-navy">Sanjana (Seller)</div>
+                <div className="text-[10px] text-gov-muted font-mono mt-0.5">{shortenAddress(DEMO_WALLETS.seller)}</div>
+              </button>
+              <button
+                onClick={() => connectDemo(DEMO_WALLETS.buyer)}
+                className="w-full text-left px-4 py-2 text-xs hover:bg-slate-50 border-b border-slate-100"
+              >
+                <div className="font-semibold text-gov-navy">Yogesh (Buyer)</div>
+                <div className="text-[10px] text-gov-muted font-mono mt-0.5">{shortenAddress(DEMO_WALLETS.buyer)}</div>
+              </button>
+              <button
+                onClick={() => connectDemo(DEMO_WALLETS.registrar)}
+                className="w-full text-left px-4 py-2 text-xs hover:bg-slate-50 border-b border-slate-100"
+              >
+                <div className="font-semibold text-gov-navy">Registrar</div>
+                <div className="text-[10px] text-gov-muted font-mono mt-0.5">{shortenAddress(DEMO_WALLETS.registrar)}</div>
+              </button>
+              <button
+                onClick={connect}
+                className="w-full text-left px-4 py-2 text-xs hover:bg-slate-50 bg-slate-50/50 flex justify-between items-center"
+              >
+                <span className="font-medium text-slate-700">Real MetaMask</span>
+                <Wallet className="w-3 h-3 text-slate-400" />
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

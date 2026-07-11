@@ -11,7 +11,7 @@ import { TransferTimeline } from "@/components/TransferTimeline";
 import { PageTransition } from "@/components/PageTransition";
 import { bhumiApi } from "@/lib/api-client";
 import { DEMO_WALLETS } from "@/lib/demo-constants";
-import { connectWallet } from "@/lib/wallet";
+import { connectWallet, getConnectedAddress } from "@/lib/wallet";
 import type { Parcel } from "@/lib/types";
 
 function TransferContent() {
@@ -25,7 +25,7 @@ function TransferContent() {
 
   useEffect(() => {
     // Listen for wallet changes
-    const checkWallet = () => setConnectedAddress(window.ethereum?.selectedAddress || null);
+    const checkWallet = () => setConnectedAddress(getConnectedAddress());
     checkWallet();
     window.addEventListener("wallet_connected", (e: any) => setConnectedAddress(e.detail));
     window.addEventListener("wallet_disconnected", () => setConnectedAddress(null));
@@ -115,7 +115,7 @@ function TransferContent() {
 
     setSubmitting(true);
     try {
-      const seller = (await connectWallet().catch(() => null))?.address ?? DEMO_WALLETS.seller;
+      const seller = getConnectedAddress() ?? DEMO_WALLETS.seller;
       const result = await bhumiApi.chainAction({
         action: "initiate",
         seller,

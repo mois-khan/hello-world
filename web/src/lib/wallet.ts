@@ -7,7 +7,16 @@ const CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || 31337);
 let cachedAddress: string | null = null;
 let cachedProvider: BrowserProvider | null = null;
 
-export async function connectWallet(): Promise<{ address: string; signer: Signer }> {
+export async function connectWallet(mockAddress?: string): Promise<{ address: string }> {
+  if (mockAddress) {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("demo_wallet_address", mockAddress);
+      cachedAddress = mockAddress;
+      window.dispatchEvent(new CustomEvent("wallet_connected", { detail: mockAddress }));
+    }
+    return { address: mockAddress };
+  }
+
   if (typeof window === "undefined" || !window.ethereum) {
     throw new Error("MetaMask not found. Install MetaMask or use demo mode.");
   }
@@ -16,15 +25,19 @@ export async function connectWallet(): Promise<{ address: string; signer: Signer
     cachedProvider = new BrowserProvider(window.ethereum);
   }
   const accounts = await cachedProvider.send("eth_requestAccounts", []);
-  const signer = await cachedProvider.getSigner();
   cachedAddress = accounts[0];
   if (typeof window !== "undefined") {
+    sessionStorage.removeItem("demo_wallet_address");
     window.dispatchEvent(new CustomEvent("wallet_connected", { detail: accounts[0] }));
   }
-  return { address: accounts[0], signer };
+  return { address: accounts[0] };
 }
 
 export function getConnectedAddress(): string | null {
+  if (typeof window !== "undefined") {
+    const stored = sessionStorage.getItem("demo_wallet_address");
+    if (stored) return stored;
+  }
   return cachedAddress;
 }
 
@@ -32,6 +45,7 @@ export function disconnectWallet(): void {
   cachedAddress = null;
   cachedProvider = null;
   if (typeof window !== "undefined") {
+    sessionStorage.removeItem("demo_wallet_address");
     window.dispatchEvent(new Event("wallet_disconnected"));
   }
 }
@@ -76,6 +90,7 @@ declare global {
     ethereum?: {
       request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
       on?: (event: string, handler: (...args: unknown[]) => void) => void;
+      selectedAddress?: string | null;
     };
   }
 }

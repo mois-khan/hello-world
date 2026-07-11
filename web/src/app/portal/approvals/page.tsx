@@ -5,7 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageHeader } from "@/components/PageHeader";
 import { bhumiApi } from "@/lib/api-client";
-import { connectWallet, shortenAddress } from "@/lib/wallet";
+import { connectWallet, getConnectedAddress, shortenAddress } from "@/lib/wallet";
 import type { TransferRequest, Parcel } from "@/lib/types";
 import { FileSignature, Eye, PenTool } from "lucide-react";
 
@@ -63,7 +63,7 @@ export default function ApprovalsPage() {
   const [loading, setLoading] = useState<number | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
   const [generatedDocHashes, setGeneratedDocHashes] = useState<{ [key: number]: string }>({});
-  const [previewPdfs, setPreviewPdfs] = useState<{ [key: number]: string }>({});
+  const [generatedHtmls, setGeneratedHtmls] = useState<{ [key: number]: string }>({});
 
   const load = async (w: string) => {
     const data = await bhumiApi.getTransfers(w);
@@ -103,7 +103,7 @@ export default function ApprovalsPage() {
       const data = await res.json();
       if (data.success) {
         setGeneratedDocHashes(prev => ({ ...prev, [tid]: data.documentHash }));
-        setPreviewPdfs(prev => ({ ...prev, [tid]: data.pdfBase64 }));
+        setGeneratedHtmls(prev => ({ ...prev, [tid]: data.html }));
       }
     } catch (e) {
       console.error("Failed to generate PDF", e);
@@ -112,12 +112,25 @@ export default function ApprovalsPage() {
     }
   };
 
+  const handlePrintDocument = (tid: number) => {
+    const html = generatedHtmls[tid];
+    if (!html) return;
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    }
+  };
+
   const approve = async (tid: number) => {
     const hash = generatedDocHashes[tid];
     if (!hash) return;
     setLoading(tid);
     try {
-      const addr = wallet || (await connectWallet()).address;
+      const addr = wallet || getConnectedAddress() || "";
       await bhumiApi.chainAction({ action: "buyerApprove", buyer: addr, transferId: tid, finalDocumentHash: hash });
       await load(addr);
     } catch (e) {
@@ -132,7 +145,7 @@ export default function ApprovalsPage() {
     if (!reason) return;
     setLoading(tid);
     try {
-      const addr = wallet || (await connectWallet()).address;
+      const addr = wallet || getConnectedAddress() || "";
       await bhumiApi.chainAction({ action: "reject", actor: addr, transferId: tid, reason });
       await load(addr);
     } catch (e) {
@@ -203,13 +216,12 @@ export default function ApprovalsPage() {
                       </p>
                       <p className="text-xs text-green-700 mt-1">Hash: {generatedDocHashes[t.id].slice(0, 16)}...</p>
                     </div>
-                    <a
-                      href={`data:application/pdf;base64,${previewPdfs[t.id]}`}
-                      download={`Final_TitleDeed_${t.parcelId}.pdf`}
+                    <button
+                      onClick={() => handlePrintDocument(t.id)}
                       className="text-sm font-semibold text-green-700 hover:underline"
                     >
-                      Preview PDF
-                    </a>
+                      Print / Save as PDF
+                    </button>
                   </div>
                 </div>
               )}
