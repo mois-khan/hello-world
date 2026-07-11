@@ -28,7 +28,7 @@ function TransferContent() {
   const [submitting, setSubmitting] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [loadingParcel, setLoadingParcel] = useState(false);
-  const [previewPdfBase64, setPreviewPdfBase64] = useState<string | null>(null);
+  const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [generatedDocHash, setGeneratedDocHash] = useState<string | null>(null);
 
   useEffect(() => {
@@ -72,12 +72,24 @@ function TransferContent() {
       const data = await res.json();
       if (data.success) {
         setGeneratedDocHash(data.documentHash);
-        setPreviewPdfBase64(data.pdfBase64);
+        setGeneratedHtml(data.html);
       }
     } catch (e) {
       console.error("Failed to generate PDF", e);
     } finally {
       setGeneratingPdf(false);
+    }
+  };
+
+  const handlePrintDocument = () => {
+    if (!generatedHtml) return;
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(generatedHtml);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
     }
   };
 
@@ -207,7 +219,7 @@ function TransferContent() {
                     disabled={!parcelId || !sellerName || !buyerName || generatingPdf || !parcel || parcel.status === "InTransfer"}
                     className="gov-btn-secondary mt-8 w-full flex items-center justify-center gap-2 disabled:opacity-40"
                   >
-                    {generatingPdf ? "Generating PDF..." : "Generate Title Deed"} <PenTool className="w-4 h-4" />
+                    {generatingPdf ? "Generating Document..." : "Generate Sale Deed"} <PenTool className="w-4 h-4" />
                   </button>
                 ) : (
                   <div className="mt-8 space-y-4">
@@ -218,13 +230,12 @@ function TransferContent() {
                         </p>
                         <p className="text-xs text-green-700 mt-1">Hash: {generatedDocHash.slice(0, 16)}...</p>
                       </div>
-                      <a
-                        href={`data:application/pdf;base64,${previewPdfBase64}`}
-                        download={`TitleDeed_${parcelId}.pdf`}
-                        className="text-sm font-semibold text-green-700 hover:underline"
+                      <button
+                        onClick={handlePrintDocument}
+                        className="text-sm font-semibold text-green-700 hover:underline flex items-center gap-1"
                       >
-                        Download PDF
-                      </a>
+                        Print / Save as PDF
+                      </button>
                     </div>
                     <button
                       onClick={handleSubmit}

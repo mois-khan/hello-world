@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
@@ -301,42 +299,16 @@ export async function POST(req: Request) {
       fs.writeFileSync(path.join(storageDir, `doc-data-${data.parcelId}.json`), JSON.stringify(data));
     }
 
-    // Launch puppeteer with Vercel support
-    const isLocal = process.env.NODE_ENV === "development";
-    
-    const chromiumArgs = await Promise.resolve(chromium.args);
-    
-    const browser = await puppeteer.launch({
-      args: isLocal ? puppeteer.defaultArgs() : (chromiumArgs as any),
-      executablePath: await chromium.executablePath(),
-      headless: true,
-    });
-    
-    const page = await browser.newPage();
     const htmlContent = generateHTML(data);
     
-    await page.setContent(htmlContent, { waitUntil: "domcontentloaded" });
-    
-    // Generate PDF
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "0px", right: "0px", bottom: "0px", left: "0px" }
-    });
-
-    await browser.close();
-
-    // Generate a hash to act as the documentHash
-    const hash = crypto.createHash('sha256').update(pdfBuffer).digest('hex');
+    // Generate a hash of the HTML to act as the documentHash
+    const hash = crypto.createHash('sha256').update(htmlContent).digest('hex');
     const documentHash = "0x" + hash;
-
-    // Convert Buffer to Base64 to send it back to client
-    const base64Pdf = Buffer.from(pdfBuffer).toString('base64');
 
     return NextResponse.json({ 
       success: true, 
       documentHash,
-      pdfBase64: base64Pdf
+      html: htmlContent
     });
     
   } catch (error: unknown) {
