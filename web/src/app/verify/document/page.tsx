@@ -60,6 +60,34 @@ export default function VerifyDocumentPage() {
     }
   };
 
+  const testAuthentic = () => {
+    setLoading(true);
+    setFile(null);
+    setTimeout(() => {
+      setResult({
+        exists: true,
+        hash: "0x8f2d5b6c9e0a1f2d3c4b5a69788796a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9",
+        parcelId: 1,
+        ulpin: "29KA0482017452"
+      });
+      setError("");
+      setLoading(false);
+    }, 800);
+  };
+
+  const testFake = () => {
+    setLoading(true);
+    setFile(null);
+    setTimeout(() => {
+      setResult({
+        exists: false,
+        hash: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
+      });
+      setError("");
+      setLoading(false);
+    }, 800);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-surface-light">
       <Navbar />
@@ -111,9 +139,30 @@ export default function VerifyDocumentPage() {
                 disabled={loading || !file}
                 className="gov-btn-primary w-full py-3 text-lg flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify Cryptographic Hash"}
+                {loading && file ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify Cryptographic Hash"}
               </button>
             </form>
+
+            <div className="mt-8 flex flex-wrap gap-4 justify-center border-t border-gov-border pt-8">
+              <button 
+                onClick={testAuthentic}
+                disabled={loading}
+                className="flex-1 min-w-[200px] px-4 py-3 bg-green-50 text-green-700 border border-green-200 rounded-btn text-sm font-semibold hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
+                type="button"
+              >
+                {loading && !file && !result ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                Demo Authentic Document
+              </button>
+              <button 
+                onClick={testFake}
+                disabled={loading}
+                className="flex-1 min-w-[200px] px-4 py-3 bg-red-50 text-red-700 border border-red-200 rounded-btn text-sm font-semibold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                type="button"
+              >
+                {loading && !file && !result ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                Demo Tampered Document
+              </button>
+            </div>
 
             {error && (
               <div className="mt-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-btn text-sm">
