@@ -39,7 +39,14 @@ export async function POST(req: NextRequest) {
       onChainHash = parcel?.documentHash ?? null;
     }
 
-    const report = await buildAiReport(sha256Value, onChainHash);
+    // Get the storage URL to pass to Gemini
+    let docUrl = url;
+    if (documentId) {
+      const doc = await prisma.document.findUnique({ where: { id: documentId } });
+      if (doc) docUrl = doc.storageUrl;
+    }
+
+    const report = await buildAiReport(sha256Value, onChainHash, docUrl);
 
     if (documentId) {
       await prisma.document.update({
