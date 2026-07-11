@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageHeader } from "@/components/PageHeader";
@@ -30,6 +30,68 @@ export default function RegisterParcelPage() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
+  const skipForwardGeocode = useRef(false);
+
+  useEffect(() => {
+    if (!form.district || form.district.trim().length < 3) return;
+    if (skipForwardGeocode.current) {
+      skipForwardGeocode.current = false;
+      return;
+    }
+
+    const handler = setTimeout(async () => {
+      setGeocoding(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+            form.district
+          )}&format=json&limit=1`
+        );
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setForm((prev) => ({
+            ...prev,
+            geo: `${parseFloat(data[0].lat).toFixed(6)},${parseFloat(data[0].lon).toFixed(6)}`,
+          }));
+        }
+      } catch (e) {
+        console.error("Geocoding failed", e);
+      } finally {
+        setGeocoding(false);
+      }
+    }, 1200); // 1.2s debounce to respect Nominatim limits
+
+    return () => clearTimeout(handler);
+  }, [form.district]);
+
+  const handleMapClick = async (lat: number, lng: number) => {
+    setForm((prev) => ({ ...prev, geo: `${lat.toFixed(6)},${lng.toFixed(6)}` }));
+    setGeocoding(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+      if (data && data.address) {
+        const locationName =
+          data.address.city ||
+          data.address.town ||
+          data.address.county ||
+          data.address.state_district ||
+          data.address.state ||
+          "";
+        if (locationName) {
+          skipForwardGeocode.current = true;
+          setForm((prev) => ({ ...prev, district: locationName }));
+        }
+      }
+    } catch (e) {
+      console.error("Reverse geocoding failed", e);
+    } finally {
+      setGeocoding(false);
+    }
+  };
 
   const handleRegister = async () => {
     setLoading(true);
@@ -83,7 +145,12 @@ export default function RegisterParcelPage() {
             { key: "ulpin", label: "ULPIN (optional)", type: "text" },
           ].map((f) => (
             <div key={f.key}>
-              <label className="metric-label">{f.label}</label>
+              <label className="metric-label flex items-center justify-between">
+                <span>{f.label}</span>
+                {f.key === "district" && geocoding && (
+                  <span className="text-[10px] text-gov-saffron animate-pulse">Searching...</span>
+                )}
+              </label>
               <input
                 type={f.type}
                 className="gov-input mt-1"
@@ -110,7 +177,7 @@ export default function RegisterParcelPage() {
                 lat={parseFloat(form.geo.split(",")[0]) || 17.75}
                 lng={parseFloat(form.geo.split(",")[1]) || 78.05}
                 zoom={14}
-                onChange={(lat, lng) => setForm({ ...form, geo: `${lat.toFixed(6)},${lng.toFixed(6)}` })}
+                onChange={handleMapClick}
               />
             </div>
             <p className="text-xs text-gov-muted mt-1 font-mono">{form.geo}</p>

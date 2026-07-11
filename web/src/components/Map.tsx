@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 
 // Fix Leaflet marker icon issue in Next.js/Webpack
@@ -31,6 +31,14 @@ function MapEvents({ onChange, readOnly }: { onChange?: (lat: number, lng: numbe
   return null;
 }
 
+function MapUpdater({ lat, lng }: { lat: number; lng: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo([lat, lng], map.getZoom());
+  }, [lat, lng, map]);
+  return null;
+}
+
 export default function Map({ lat, lng, zoom = 13, readOnly = false, onChange }: MapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -53,6 +61,7 @@ export default function Map({ lat, lng, zoom = 13, readOnly = false, onChange }:
       />
       <Marker position={[lat, lng]} />
       {!readOnly && <MapEvents onChange={onChange} readOnly={readOnly} />}
+      <MapUpdater lat={lat} lng={lng} />
     </MapContainer>
   );
 }
