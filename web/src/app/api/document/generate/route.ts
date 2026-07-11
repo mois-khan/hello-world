@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-import puppeteer from "puppeteer";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
+
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 
 // ... (keep generateHTML exactly as it is)
 function generateHTML(data: any) {
@@ -284,7 +288,7 @@ export async function POST(req: Request) {
   try {
     let data = await req.json();
 
-    const storageDir = path.join(process.cwd(), 'storage');
+    const storageDir = '/tmp';
     if (!fs.existsSync(storageDir)) fs.mkdirSync(storageDir, { recursive: true });
 
     if (data.action === "sign-buyer") {
@@ -297,10 +301,15 @@ export async function POST(req: Request) {
       fs.writeFileSync(path.join(storageDir, `doc-data-${data.parcelId}.json`), JSON.stringify(data));
     }
 
-    // Launch puppeteer
+    // Launch puppeteer with Vercel support
+    const isLocal = process.env.NODE_ENV === "development";
+    
+    const chromiumArgs = await Promise.resolve(chromium.args);
+    
     const browser = await puppeteer.launch({
+      args: isLocal ? puppeteer.defaultArgs() : (chromiumArgs as any),
+      executablePath: await chromium.executablePath(),
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     
     const page = await browser.newPage();
