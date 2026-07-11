@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { bhumiApi } from "@/lib/api-client";
 import { DEMO_WALLETS } from "@/lib/demo-constants";
 import { connectWallet } from "@/lib/wallet";
+import MapDynamic from "@/components/MapDynamic";
 
 function generateRandomULPIN() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -77,7 +78,6 @@ export default function RegisterParcelPage() {
           {[
             { key: "surveyNumber", label: "Survey Number", type: "text" },
             { key: "district", label: "District", type: "text" },
-            { key: "geo", label: "Coordinates (lat,lng)", type: "text" },
             { key: "area", label: "Area (sq.ft)", type: "number" },
             { key: "owner", label: "Owner Wallet", type: "text" },
             { key: "ulpin", label: "ULPIN (optional)", type: "text" },
@@ -97,6 +97,24 @@ export default function RegisterParcelPage() {
               />
             </div>
           ))}
+
+          <div>
+            <label className="metric-label flex items-center justify-between">
+              <span>Geospatial Coordinates</span>
+              <span className="text-[10px] bg-gov-blue-light text-gov-blue px-2 py-0.5 rounded">
+                Click map to select
+              </span>
+            </label>
+            <div className="h-48 mt-2 border border-gov-border rounded-card overflow-hidden">
+              <MapDynamic
+                lat={parseFloat(form.geo.split(",")[0]) || 17.75}
+                lng={parseFloat(form.geo.split(",")[1]) || 78.05}
+                zoom={14}
+                onChange={(lat, lng) => setForm({ ...form, geo: `${lat.toFixed(6)},${lng.toFixed(6)}` })}
+              />
+            </div>
+            <p className="text-xs text-gov-muted mt-1 font-mono">{form.geo}</p>
+          </div>
 
           <div>
             <label className="metric-label">Title Document</label>

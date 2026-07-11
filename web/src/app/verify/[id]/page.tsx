@@ -13,6 +13,7 @@ import { DocumentIntegrityReport } from "@/components/DocumentIntegrityReport";
 import { bhumiApi } from "@/lib/api-client";
 import type { Parcel, TimelineEvent, AiReport } from "@/lib/types";
 import { shortenAddress } from "@/lib/wallet";
+import MapDynamic from "@/components/MapDynamic";
 
 export default function VerifyByIdPage() {
   const params = useParams();
@@ -83,10 +84,23 @@ export default function VerifyByIdPage() {
                       Status: <strong>{parcel.status}</strong> · Area: {parcel.area} sq.ft
                     </p>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center shrink-0">
                     <QrCode value={verifyUrl} />
                     <p className="text-xs text-gov-muted mt-2">Scan to verify</p>
                   </div>
+                </div>
+
+                <div className="mt-6">
+                  <span className="metric-label">Geospatial Location</span>
+                  <div className="h-56 mt-2 border border-gov-border rounded-card overflow-hidden">
+                    <MapDynamic
+                      lat={parseFloat(parcel.geo?.split(",")[0]) || 17.75}
+                      lng={parseFloat(parcel.geo?.split(",")[1]) || 78.05}
+                      zoom={15}
+                      readOnly={true}
+                    />
+                  </div>
+                  <p className="text-xs text-gov-muted mt-1 font-mono">{parcel.geo}</p>
                 </div>
 
                 <div className="flex gap-3 mt-6 flex-wrap">
