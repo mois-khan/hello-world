@@ -23,8 +23,12 @@ export async function GET(req: NextRequest) {
 
     const parcels: Parcel[] = [];
 
-    for (const id of allParcelIds) {
-      const merged = await mergeParcelWithMeta(id);
+    // Fetch all chain data in parallel to avoid sequential blocking
+    const mergedResults = await Promise.all(
+      allParcelIds.map(id => mergeParcelWithMeta(id))
+    );
+
+    for (const merged of mergedResults) {
       if (!merged) continue;
       if (owner && merged.owner.toLowerCase() !== owner) continue;
       if (district && !merged.district.toLowerCase().includes(district)) continue;

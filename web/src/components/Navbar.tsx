@@ -10,19 +10,19 @@ import { cn } from "@/lib/utils";
 
 const PUBLIC_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/verify", label: "Verify Parcel" },
+  { href: "/verify", label: "Verify Property" },
   { href: "/verify/document", label: "Verify Document" },
 ];
 
 const CITIZEN_LINKS = [
-  { href: "/portal/parcels", label: "My Parcels" },
-  { href: "/portal/transfer", label: "Transfer" },
-  { href: "/portal/approvals", label: "Approvals" },
+  { href: "/portal/parcels", label: "My Properties" },
+  { href: "/portal/transfer", label: "Sell Property" },
+  { href: "/portal/approvals", label: "Buy Requests" },
 ];
 
 const REGISTRAR_LINKS = [
-  { href: "/dashboard", label: "Fraud War-Room" },
-  { href: "/dashboard/register", label: "Register Parcel" },
+  { href: "/dashboard", label: "Fraud Dashboard" },
+  { href: "/dashboard/register", label: "Register Property" },
   { href: "/dashboard/transfers", label: "Transfer Queue" },
 ];
 
@@ -168,7 +168,7 @@ export function Navbar() {
           </div>
 
           <Link href="/verify" className="hidden lg:inline-flex gov-btn-saffron text-sm my-2">
-            Verify Parcel
+            Verify Property
           </Link>
 
           <button
@@ -201,7 +201,7 @@ export function Navbar() {
               onClick={() => setOpen(false)}
               className="block mt-2 gov-btn-saffron text-center"
             >
-              Verify Parcel
+              Verify Property
             </Link>
           </div>
         )}
