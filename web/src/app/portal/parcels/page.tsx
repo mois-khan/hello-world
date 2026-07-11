@@ -51,6 +51,25 @@ export default function PortalParcelsPage() {
     } else {
       setLoading(false);
     }
+
+    const handleConnect = (e: any) => {
+      const addr = e.detail;
+      setWallet(addr);
+      load(addr);
+    };
+
+    const handleDisconnect = () => {
+      setWallet(null);
+      setParcels([]);
+    };
+
+    window.addEventListener("wallet_connected", handleConnect);
+    window.addEventListener("wallet_disconnected", handleDisconnect);
+
+    return () => {
+      window.removeEventListener("wallet_connected", handleConnect);
+      window.removeEventListener("wallet_disconnected", handleDisconnect);
+    };
   }, [load]);
 
   const handleConnect = async () => {

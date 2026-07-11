@@ -18,6 +18,9 @@ export async function connectWallet(): Promise<{ address: string; signer: Signer
   const accounts = await cachedProvider.send("eth_requestAccounts", []);
   const signer = await cachedProvider.getSigner();
   cachedAddress = accounts[0];
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("wallet_connected", { detail: accounts[0] }));
+  }
   return { address: accounts[0], signer };
 }
 
@@ -28,6 +31,9 @@ export function getConnectedAddress(): string | null {
 export function disconnectWallet(): void {
   cachedAddress = null;
   cachedProvider = null;
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("wallet_disconnected"));
+  }
 }
 
 export async function ensureCorrectNetwork(): Promise<void> {

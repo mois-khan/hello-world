@@ -11,6 +11,16 @@ export function WalletButton() {
 
   useEffect(() => {
     setAddress(getConnectedAddress());
+    
+    const handleConnect = (e: any) => setAddress(e.detail);
+    const handleDisconnect = () => setAddress(null);
+    
+    window.addEventListener("wallet_connected", handleConnect);
+    window.addEventListener("wallet_disconnected", handleDisconnect);
+    return () => {
+      window.removeEventListener("wallet_connected", handleConnect);
+      window.removeEventListener("wallet_disconnected", handleDisconnect);
+    };
   }, []);
 
   const connect = useCallback(async () => {
