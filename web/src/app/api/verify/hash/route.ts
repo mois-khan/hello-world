@@ -11,24 +11,37 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const doc = await prisma.document.findFirst({
+    let doc = await prisma.document.findFirst({
       where: { sha256: hash },
       orderBy: { createdAt: "desc" },
     });
 
+    let parcelId = doc?.parcelId;
+    let createdAt = doc?.createdAt;
+
     if (!doc) {
+      const simParcel = await prisma.simParcel.findFirst({
+        where: { documentHash: hash },
+      });
+      if (simParcel) {
+        parcelId = simParcel.id;
+        createdAt = new Date(Number(simParcel.registeredAt));
+      }
+    }
+
+    if (!parcelId) {
       return ok({ exists: false });
     }
 
     const parcelMeta = await prisma.parcelMeta.findUnique({
-      where: { id: doc.parcelId }
+      where: { id: parcelId }
     });
 
     return ok({
       exists: true,
-      parcelId: doc.parcelId,
+      parcelId: parcelId,
       ulpin: parcelMeta?.ulpin,
-      createdAt: doc.createdAt,
+      createdAt: createdAt,
     });
   } catch (e) {
     return fail(e instanceof Error ? e.message : "Internal error", 500);

@@ -92,7 +92,7 @@ const SEED_PARCELS = [
 
 export async function seedDatabase(): Promise<void> {
   for (const p of SEED_PARCELS) {
-    await prisma.parcelMeta.upsert({
+    const meta = await prisma.parcelMeta.upsert({
       where: { id: p.id },
       create: {
         id: p.id,
@@ -116,6 +116,22 @@ export async function seedDatabase(): Promise<void> {
         ownerWallet: p.ownerWallet.toLowerCase(),
       },
     });
+
+    const doc = await prisma.document.findFirst({ where: { sha256: p.documentHash } });
+    if (!doc) {
+      const newDoc = await prisma.document.create({
+        data: {
+          parcelId: p.id,
+          storageUrl: "/placeholder.pdf",
+          sha256: p.documentHash,
+          uploadedBy: "seed",
+        },
+      });
+      await prisma.parcelMeta.update({
+        where: { id: p.id },
+        data: { currentDocId: newDoc.id },
+      });
+    }
 
     await sim.simRegisterParcel({
       parcelId: p.id,
@@ -162,6 +178,19 @@ export async function seedDatabase(): Promise<void> {
       },
       update: { status: "PendingRegistrar" },
     });
+    
+    const docHash = "0x" + "d".repeat(64);
+    const existingDoc = await prisma.document.findFirst({ where: { sha256: docHash } });
+    if (!existingDoc) {
+      await prisma.document.create({
+        data: {
+          parcelId: 2,
+          storageUrl: "/placeholder-transfer.pdf",
+          sha256: docHash,
+          uploadedBy: "seed",
+        },
+      });
+    }
   }
 
   await prisma.user.upsert({

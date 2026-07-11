@@ -68,7 +68,7 @@ export default function HomePage() {
   const handleSearch = () => {
     const q = searchQuery.trim();
     if (!q) return;
-    router.push(`/verify?q=${encodeURIComponent(q)}`);
+    router.push(`/search?q=${encodeURIComponent(q)}`);
   };
 
   return (
