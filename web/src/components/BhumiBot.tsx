@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, X, Send, Bot, User, Loader2 } from "lucide-react";
+import { MessageSquare, X, Send, Bot, User, Loader2, Mic } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type Message = {
   id: string;
@@ -10,17 +11,29 @@ type Message = {
 };
 
 export function BhumiBot() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       role: "bot",
-      content: "Namaste! I am Bhumi-Bot, your AI Legal Assistant. Ask me anything about BhuRaksha, property registration, or smart contracts.",
+      content: "Namaste! I am Bhumi-Bot, your AI Legal Assistant. You can ask me legal questions or tell me to navigate somewhere (e.g. 'Take me to register a parcel').",
     },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        setSpeechSupported(false);
+      }
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,6 +42,35 @@ export function BhumiBot() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isOpen]);
+
+  const handleListen = () => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-IN";
+
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(transcript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech error", event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -59,13 +101,26 @@ export function BhumiBot() {
         throw new Error(data.error || "Failed to fetch AI response");
       }
 
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "bot",
-        content: data.reply,
-      };
+      let botReply = data.reply;
+      
+      // Parse Navigation Intent
+      const navRegex = /\[NAVIGATE:(.*?)\]/;
+      const match = botReply.match(navRegex);
+      if (match && match[1]) {
+        const path = match[1].trim();
+        botReply = botReply.replace(navRegex, "").trim();
+        // Redirect
+        router.push(path);
+      }
 
-      setMessages((prev) => [...prev, botMessage]);
+      if (botReply) {
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "bot",
+          content: botReply,
+        };
+        setMessages((prev) => [...prev, botMessage]);
+      }
     } catch (error) {
       console.error(error);
       const errorMessage: Message = {
@@ -106,7 +161,7 @@ export function BhumiBot() {
                 <h3 className="font-bold text-sm">Bhumi-Bot</h3>
                 <p className="text-[10px] text-white/70 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-                  AI Legal Assistant
+                  AI Legal Assistant & Navigator
                 </p>
               </div>
             </div>
@@ -169,16 +224,31 @@ export function BhumiBot() {
                 e.preventDefault();
                 handleSend();
               }}
-              className="flex gap-2"
+              className="flex gap-2 items-center"
             >
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask a legal question..."
-                className="flex-1 bg-gov-grey border border-gov-border rounded-full px-4 py-2 text-sm focus:outline-none focus:border-gov-blue focus:ring-1 focus:ring-gov-blue"
-                disabled={isLoading}
-              />
+              <div className="flex-1 flex items-center bg-gov-grey border border-gov-border rounded-full px-2 py-1 focus-within:border-gov-blue focus-within:ring-1 focus-within:ring-gov-blue">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask a legal question or navigate..."
+                  className="flex-1 bg-transparent px-2 py-1 text-sm focus:outline-none"
+                  disabled={isLoading}
+                />
+                {speechSupported && (
+                  <button
+                    type="button"
+                    onClick={handleListen}
+                    disabled={isLoading || isListening}
+                    className={`p-1.5 rounded-full transition-colors ${
+                      isListening ? "bg-red-100 text-red-500 animate-pulse" : "text-gov-muted hover:text-gov-blue hover:bg-gov-blue/10"
+                    }`}
+                    title="Speak"
+                  >
+                    <Mic className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading}
