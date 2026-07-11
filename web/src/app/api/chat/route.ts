@@ -39,8 +39,13 @@ export async function POST(req: NextRequest) {
       return fail("GEMINI_API_KEY is not configured", 500);
     }
 
-    // Format history for Gemini
-    const contents = history.map((msg: { role: string, content: string }) => ({
+    // Format history for Gemini. The first message MUST be a user message.
+    let validHistory = history;
+    while (validHistory.length > 0 && validHistory[0].role !== "user") {
+      validHistory.shift();
+    }
+
+    const contents = validHistory.map((msg: { role: string, content: string }) => ({
       role: msg.role === "user" ? "user" : "model",
       parts: [{ text: msg.content }]
     }));
@@ -51,7 +56,7 @@ export async function POST(req: NextRequest) {
       parts: [{ text: message }]
     });
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
