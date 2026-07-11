@@ -12,7 +12,7 @@ import { QrCode } from "@/components/QrCode";
 import { DocumentIntegrityReport } from "@/components/DocumentIntegrityReport";
 import { bhumiApi } from "@/lib/api-client";
 import type { Parcel, TimelineEvent, AiReport } from "@/lib/types";
-import { shortenAddress } from "@/lib/wallet";
+import { shortenAddress, getWalletName } from "@/lib/wallet";
 import MapDynamic from "@/components/MapDynamic";
 
 export default function VerifyByIdPage() {
@@ -75,9 +75,9 @@ export default function VerifyByIdPage() {
                     <p className="mt-4">
                       <span className="metric-label">Current Owner</span>
                       <br />
-                      {parcel.ownerName && (
-                        <span className="font-bold text-gov-navy block">{parcel.ownerName}</span>
-                      )}
+                      <span className="font-bold text-gov-navy block">
+                        {parcel.ownerName || getWalletName(parcel.owner)}
+                      </span>
                       <span className="font-mono font-semibold text-sm text-gov-muted">{shortenAddress(parcel.owner)}</span>
                     </p>
                     <p className="mt-2 text-sm">

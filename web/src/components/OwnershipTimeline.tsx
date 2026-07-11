@@ -1,7 +1,7 @@
 "use client";
 
 import type { TimelineEvent } from "@/lib/types";
-import { shortenAddress } from "@/lib/wallet";
+import { shortenAddress, getWalletName } from "@/lib/wallet";
 import { Check, Link2 } from "lucide-react";
 
 export function OwnershipTimeline({ events }: { events: TimelineEvent[] }) {
@@ -22,8 +22,8 @@ export function OwnershipTimeline({ events }: { events: TimelineEvent[] }) {
           <div className="pb-6">
             <p className="font-semibold text-sm text-gov-navy">{e.type}</p>
             <p className="text-xs text-gov-muted mt-0.5">
-              {e.from && `From ${shortenAddress(e.from)} → `}
-              To {e.to.startsWith("0x") ? shortenAddress(e.to) : e.to}
+              {e.from && `From ${getWalletName(e.from)} → `}
+              To {e.to.startsWith("0x") ? getWalletName(e.to) : e.to}
             </p>
             <p className="text-xs text-gov-muted flex items-center gap-1 mt-1">
               <Link2 className="w-3 h-3" />

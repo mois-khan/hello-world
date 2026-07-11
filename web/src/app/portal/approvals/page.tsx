@@ -112,17 +112,19 @@ export default function ApprovalsPage() {
     }
   };
 
-  const handlePrintDocument = (tid: number) => {
+  const handlePrintDocument = async (tid: number) => {
     const html = generatedHtmls[tid];
     if (!html) return;
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(html);
-      printWindow.document.close();
-      setTimeout(() => {
-        printWindow.print();
-      }, 500);
-    }
+    const html2pdf = (await import('html2pdf.js')).default;
+    const element = document.createElement('div');
+    element.innerHTML = html;
+    html2pdf().from(element).set({
+      margin: 10,
+      filename: `Final_TitleDeed_${tid}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).save();
   };
 
   const approve = async (tid: number) => {

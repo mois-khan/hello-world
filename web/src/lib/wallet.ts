@@ -81,8 +81,20 @@ export async function ensureCorrectNetwork(): Promise<void> {
   }
 }
 
+import { DEMO_WALLETS } from "./demo-constants";
+
 export function shortenAddress(addr: string): string {
+  if (!addr) return "";
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+}
+
+export function getWalletName(addr: string): string {
+  if (!addr) return "Citizen";
+  const lower = addr.toLowerCase();
+  if (lower === DEMO_WALLETS.registrar.toLowerCase()) return "Registrar";
+  if (lower === DEMO_WALLETS.seller.toLowerCase()) return "Sanjana";
+  if (lower === DEMO_WALLETS.buyer.toLowerCase()) return "Yogesh";
+  return `Citizen (${shortenAddress(addr)})`;
 }
 
 declare global {

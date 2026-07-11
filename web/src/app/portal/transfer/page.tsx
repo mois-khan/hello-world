@@ -90,16 +90,18 @@ function TransferContent() {
     }
   };
 
-  const handlePrintDocument = () => {
+  const handlePrintDocument = async () => {
     if (!generatedHtml) return;
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(generatedHtml);
-      printWindow.document.close();
-      setTimeout(() => {
-        printWindow.print();
-      }, 500);
-    }
+    const html2pdf = (await import('html2pdf.js')).default;
+    const element = document.createElement('div');
+    element.innerHTML = generatedHtml;
+    html2pdf().from(element).set({
+      margin: 10,
+      filename: `TitleDeed_${parcelId}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).save();
   };
 
   const handleSubmit = async () => {
@@ -126,7 +128,7 @@ function TransferContent() {
         newDocumentHash: generatedDocHash,
       });
       setTransferId(result.transferId ?? null);
-      await bhumiApi.scanFraud({ transferId: result.transferId, parcelId: id });
+      bhumiApi.scanFraud({ transferId: result.transferId, parcelId: id }).catch(console.error);
       setStep("progress");
     } catch (e) {
       setBlockReason(e instanceof Error ? e.message : "Transfer blocked");

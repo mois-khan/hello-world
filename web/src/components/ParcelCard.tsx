@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { Parcel, ParcelStatus } from "@/lib/types";
 import { StatusBadge } from "./StatusBadge";
-import { shortenAddress } from "@/lib/wallet";
+import { shortenAddress, getWalletName } from "@/lib/wallet";
 import { MapPin, Ruler, User } from "lucide-react";
 import { QrCode } from "@/components/QrCode";
 
@@ -34,7 +34,7 @@ export function ParcelCard({ parcel, className }: { parcel: Parcel; className?: 
         </div>
         <div className="flex items-center gap-2 text-sm text-gov-text">
           <User className="w-4 h-4 text-gov-blue shrink-0" />
-          <span>{shortenAddress(parcel.owner)}</span>
+          <span>{getWalletName(parcel.owner)}</span>
         </div>
       </div>
 
