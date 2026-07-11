@@ -74,7 +74,7 @@ function TransferContent() {
           sellerName,
           buyerName,
           agreementText,
-          sellerSignature: sigCanvas.current ? sigCanvas.current.getTrimmedCanvas().toDataURL('image/png') : null
+          sellerSignature: sigCanvas.current ? sigCanvas.current.getCanvas().toDataURL('image/png') : null
         })
       });
       const data = await res.json();
