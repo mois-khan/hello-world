@@ -63,7 +63,7 @@ export default function ApprovalsPage() {
   const [loading, setLoading] = useState<number | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
   const [generatedDocHashes, setGeneratedDocHashes] = useState<{ [key: number]: string }>({});
-  const [generatedHtmls, setGeneratedHtmls] = useState<{ [key: number]: string }>({});
+  const [previewPdfs, setPreviewPdfs] = useState<{ [key: number]: string }>({});
 
   const load = async (w: string) => {
     const data = await bhumiApi.getTransfers(w);
@@ -103,7 +103,14 @@ export default function ApprovalsPage() {
       const data = await res.json();
       if (data.success) {
         setGeneratedDocHashes(prev => ({ ...prev, [tid]: data.documentHash }));
-        setGeneratedHtmls(prev => ({ ...prev, [tid]: data.html }));
+        const binaryString = window.atob(data.pdfBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        setPreviewPdfs(prev => ({ ...prev, [tid]: url }));
       }
     } catch (e) {
       console.error("Failed to generate PDF", e);
@@ -113,18 +120,14 @@ export default function ApprovalsPage() {
   };
 
   const handlePrintDocument = async (tid: number) => {
-    const html = generatedHtmls[tid];
-    if (!html) return;
-    const html2pdf = (await import('html2pdf.js')).default;
-    const element = document.createElement('div');
-    element.innerHTML = html;
-    html2pdf().from(element).set({
-      margin: 10,
-      filename: `Final_TitleDeed_${tid}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).save();
+    const pdfUrl = previewPdfs[tid];
+    if (!pdfUrl) return;
+    const link = document.createElement("a");
+    link.href = pdfUrl;
+    link.download = `Final_TitleDeed_${tid}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const approve = async (tid: number) => {

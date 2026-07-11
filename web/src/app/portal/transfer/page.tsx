@@ -37,7 +37,7 @@ function TransferContent() {
   const [submitting, setSubmitting] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [loadingParcel, setLoadingParcel] = useState(false);
-  const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
+  const [previewPdfBase64, setPreviewPdfBase64] = useState<string | null>(null);
   const [generatedDocHash, setGeneratedDocHash] = useState<string | null>(null);
 
   useEffect(() => {
@@ -81,7 +81,14 @@ function TransferContent() {
       const data = await res.json();
       if (data.success) {
         setGeneratedDocHash(data.documentHash);
-        setGeneratedHtml(data.html);
+        const binaryString = window.atob(data.pdfBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        setPreviewPdfBase64(url);
       }
     } catch (e) {
       console.error("Failed to generate PDF", e);
@@ -91,17 +98,13 @@ function TransferContent() {
   };
 
   const handlePrintDocument = async () => {
-    if (!generatedHtml) return;
-    const html2pdf = (await import('html2pdf.js')).default;
-    const element = document.createElement('div');
-    element.innerHTML = generatedHtml;
-    html2pdf().from(element).set({
-      margin: 10,
-      filename: `TitleDeed_${parcelId}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).save();
+    if (!previewPdfBase64) return;
+    const link = document.createElement("a");
+    link.href = previewPdfBase64;
+    link.download = `TitleDeed_${parcelId}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleSubmit = async () => {

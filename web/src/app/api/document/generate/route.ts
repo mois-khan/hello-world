@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import puppeteer from "puppeteer";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
@@ -301,14 +302,25 @@ export async function POST(req: Request) {
 
     const htmlContent = generateHTML(data);
     
-    // Generate a hash of the HTML to act as the documentHash
-    const hash = crypto.createHash('sha256').update(htmlContent).digest('hex');
+    // Launch puppeteer
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: "domcontentloaded" });
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" }
+    });
+    await browser.close();
+
+    const base64Pdf = Buffer.from(pdfBuffer).toString("base64");
+    const hash = crypto.createHash("sha256").update(pdfBuffer).digest("hex");
     const documentHash = "0x" + hash;
 
     return NextResponse.json({ 
       success: true, 
       documentHash,
-      html: htmlContent
+      pdfBase64: base64Pdf
     });
     
   } catch (error: unknown) {

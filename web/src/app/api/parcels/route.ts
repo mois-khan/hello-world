@@ -5,6 +5,8 @@ import { mergeParcelWithMeta } from "@/lib/seed";
 import { ensureSeeded } from "@/lib/seed";
 import type { Parcel } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     await ensureSeeded();
