@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { GovEmblem } from "@/components/GovEmblem";
 import { WalletButton } from "@/components/WalletButton";
@@ -38,9 +38,25 @@ export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [portalsOpen, setPortalsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setPortalsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href === "/verify") {
+      return pathname === "/verify" || (pathname.startsWith("/verify/") && !pathname.startsWith("/verify/document"));
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const portalActive = PORTAL_GROUPS.some((g) => g.links.some((l) => isActive(l.href)));
 
@@ -114,7 +130,7 @@ export function Navbar() {
               </Link>
             ))}
 
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setPortalsOpen(!portalsOpen)}
                 className={cn(
