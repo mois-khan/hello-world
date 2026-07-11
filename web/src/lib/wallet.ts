@@ -25,6 +25,11 @@ export function getConnectedAddress(): string | null {
   return cachedAddress;
 }
 
+export function disconnectWallet(): void {
+  cachedAddress = null;
+  cachedProvider = null;
+}
+
 export async function ensureCorrectNetwork(): Promise<void> {
   if (typeof window === "undefined" || !window.ethereum) return;
   const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
