@@ -21,6 +21,15 @@ function TransferContent() {
   const [step, setStep] = useState<"input" | "blocked" | "progress">("input");
   const [blockReason, setBlockReason] = useState("");
   const [buyerWallet, setBuyerWallet] = useState(DEMO_WALLETS.buyer);
+  const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Listen for wallet changes
+    const checkWallet = () => setConnectedAddress(window.ethereum?.selectedAddress || null);
+    checkWallet();
+    window.addEventListener("wallet_connected", (e: any) => setConnectedAddress(e.detail));
+    window.addEventListener("wallet_disconnected", () => setConnectedAddress(null));
+  }, []);
   const [sellerName, setSellerName] = useState("");
   const [buyerName, setBuyerName] = useState("");
   const [transferId, setTransferId] = useState<number | null>(null);
@@ -164,6 +173,14 @@ function TransferContent() {
                     <p className="text-gov-muted mt-1">
                       Status: {parcel.status} · Area: {parcel.area} sq.ft
                     </p>
+                    <p className="text-xs font-mono mt-2 text-slate-500">
+                      Owner: {parcel.owner}
+                    </p>
+                    {connectedAddress && connectedAddress.toLowerCase() !== parcel.owner.toLowerCase() && (
+                      <p className="text-red-600 font-semibold mt-2 text-xs bg-red-50 p-2 rounded">
+                        Warning: Your connected wallet ({connectedAddress.slice(0,6)}...) does not match the parcel owner. The transfer will be blocked. Please switch to the owner's wallet in MetaMask.
+                      </p>
+                    )}
                   </div>
                 )}
 
