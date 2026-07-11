@@ -14,10 +14,13 @@ const PUBLIC_LINKS = [
   { href: "/verify/document", label: "Verify Document" },
 ];
 
-const CITIZEN_LINKS = [
+const BUYER_LINKS = [
+  { href: "/portal/approvals", label: "Buy Requests" },
+];
+
+const SELLER_LINKS = [
   { href: "/portal/parcels", label: "My Properties" },
   { href: "/portal/transfer", label: "Sell Property" },
-  { href: "/portal/approvals", label: "Buy Requests" },
 ];
 
 const REGISTRAR_LINKS = [
@@ -26,24 +29,29 @@ const REGISTRAR_LINKS = [
   { href: "/dashboard/transfers", label: "Transfer Queue" },
 ];
 
-const ADMIN_LINKS = [{ href: "/admin", label: "Admin" }];
+const ADMIN_LINKS = [
+  { href: "/super", label: "Super Admin" },
+  { href: "/search", label: "Global Search" },
+  { href: "/admin", label: "Simulator" },
+];
 
-const PORTAL_GROUPS = [
-  { label: "Citizen Portal", links: CITIZEN_LINKS },
+const ROLE_MENUS = [
+  { label: "Buyer", links: BUYER_LINKS },
+  { label: "Seller", links: SELLER_LINKS },
   { label: "Registrar", links: REGISTRAR_LINKS },
-  { label: "Administration", links: ADMIN_LINKS },
+  { label: "Admin", links: ADMIN_LINKS },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [portalsOpen, setPortalsOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setPortalsOpen(false);
+        setActiveMenu(null);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -58,7 +66,7 @@ export function Navbar() {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  const portalActive = PORTAL_GROUPS.some((g) => g.links.some((l) => isActive(l.href)));
+  const isGroupActive = (links: {href: string}[]) => links.some((l) => isActive(l.href));
 
   return (
     <header className="sticky top-0 z-50 shadow-md">
@@ -130,28 +138,25 @@ export function Navbar() {
               </Link>
             ))}
 
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setPortalsOpen(!portalsOpen)}
-                className={cn(
-                  "gov-nav-link flex items-center gap-1",
-                  portalActive && "gov-nav-link-active"
-                )}
-              >
-                Portals <ChevronDown className="w-4 h-4" />
-              </button>
-              {portalsOpen && (
-                <div className="absolute top-full left-0 mt-0 bg-white border border-gov-border rounded-card shadow-lg py-2 min-w-[220px] z-50">
-                  {PORTAL_GROUPS.map((group) => (
-                    <div key={group.label}>
-                      <p className="px-4 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-gov-muted">
-                        {group.label}
-                      </p>
-                      {group.links.map((link) => (
+            <div className="flex items-center gap-1" ref={dropdownRef}>
+              {ROLE_MENUS.map((menu) => (
+                <div key={menu.label} className="relative">
+                  <button
+                    onClick={() => setActiveMenu(activeMenu === menu.label ? null : menu.label)}
+                    className={cn(
+                      "gov-nav-link flex items-center gap-1",
+                      isGroupActive(menu.links) && "gov-nav-link-active"
+                    )}
+                  >
+                    {menu.label} <ChevronDown className="w-4 h-4" />
+                  </button>
+                  {activeMenu === menu.label && (
+                    <div className="absolute top-full left-0 mt-0 bg-white border border-gov-border rounded-card shadow-lg py-2 min-w-[200px] z-50">
+                      {menu.links.map((link) => (
                         <Link
                           key={link.href}
                           href={link.href}
-                          onClick={() => setPortalsOpen(false)}
+                          onClick={() => setActiveMenu(null)}
                           className={cn(
                             "block px-4 py-2 text-sm text-gov-text hover:bg-gov-blue-light hover:text-gov-blue",
                             isActive(link.href) && "bg-gov-blue-light text-gov-blue font-semibold"
@@ -161,9 +166,9 @@ export function Navbar() {
                         </Link>
                       ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
+              ))}
             </div>
           </div>
 
@@ -183,7 +188,7 @@ export function Navbar() {
 
         {open && (
           <div className="lg:hidden border-t border-white/20 px-4 py-3 space-y-1">
-            {[...PUBLIC_LINKS, ...CITIZEN_LINKS, ...REGISTRAR_LINKS, ...ADMIN_LINKS].map((link) => (
+            {[...PUBLIC_LINKS, ...BUYER_LINKS, ...SELLER_LINKS, ...REGISTRAR_LINKS, ...ADMIN_LINKS].map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

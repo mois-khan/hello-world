@@ -7,12 +7,9 @@ import { Wallet, LogOut } from "lucide-react";
 import { DEMO_WALLETS } from "@/lib/demo-constants";
 
 const WALLET_NAMES: Record<string, string> = {
-  [DEMO_WALLETS.registrar.toLowerCase()]: "Registrar Rao",
-  [DEMO_WALLETS.seller.toLowerCase()]: "Rahul Sharma (Seller)",
-  [DEMO_WALLETS.buyer.toLowerCase()]: "Priya Patel (Buyer)",
-  [DEMO_WALLETS.owner3.toLowerCase()]: "Owner 3",
-  [DEMO_WALLETS.userA.toLowerCase()]: "User A",
-  [DEMO_WALLETS.userB.toLowerCase()]: "User B",
+  [DEMO_WALLETS.registrar.toLowerCase()]: "Registrar",
+  [DEMO_WALLETS.seller.toLowerCase()]: "Sanjana (Seller)",
+  [DEMO_WALLETS.buyer.toLowerCase()]: "Yogesh (Buyer)",
 };
 
 export function WalletButton() {
