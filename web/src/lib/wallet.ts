@@ -91,9 +91,12 @@ export function shortenAddress(addr: string): string {
 export function getWalletName(addr: string): string {
   if (!addr) return "Citizen";
   const lower = addr.toLowerCase();
+  if (lower === "state") return "Government of Telangana (STATE)";
   if (lower === DEMO_WALLETS.registrar.toLowerCase()) return "Registrar";
   if (lower === DEMO_WALLETS.seller.toLowerCase()) return "Sanjana";
   if (lower === DEMO_WALLETS.buyer.toLowerCase()) return "Yogesh";
+  if (lower === "0x1111111111111111111111111111111111111111") return "Anand Rao";
+  if (lower === "0x2222222222222222222222222222222222222222") return "Meera Reddy";
   return `Citizen (${shortenAddress(addr)})`;
 }
 
