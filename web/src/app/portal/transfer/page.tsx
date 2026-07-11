@@ -13,8 +13,6 @@ import { bhumiApi } from "@/lib/api-client";
 import { DEMO_WALLETS } from "@/lib/demo-constants";
 import { connectWallet } from "@/lib/wallet";
 import type { Parcel } from "@/lib/types";
-import SignatureCanvas from "react-signature-canvas";
-import { useRef } from "react";
 
 function TransferContent() {
   const searchParams = useSearchParams();
@@ -30,7 +28,6 @@ function TransferContent() {
   const [submitting, setSubmitting] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [loadingParcel, setLoadingParcel] = useState(false);
-  const sigCanvas = useRef<any>(null);
   const [previewPdfBase64, setPreviewPdfBase64] = useState<string | null>(null);
   const [generatedDocHash, setGeneratedDocHash] = useState<string | null>(null);
 
@@ -55,10 +52,6 @@ function TransferContent() {
 
   const handleGeneratePdf = async () => {
     if (!parcel || !sellerName || !buyerName) return;
-    if (sigCanvas.current && sigCanvas.current.isEmpty()) {
-      alert("Please provide your signature.");
-      return;
-    }
 
     setGeneratingPdf(true);
     try {
@@ -73,8 +66,7 @@ function TransferContent() {
           area: parcel.area,
           sellerName,
           buyerName,
-          agreementText,
-          sellerSignature: sigCanvas.current ? sigCanvas.current.getCanvas().toDataURL('image/png') : null
+          agreementText
         })
       });
       const data = await res.json();
@@ -207,21 +199,6 @@ function TransferContent() {
                     onChange={(e) => setAgreementText(e.target.value)}
                     className="gov-input mt-2 resize-none"
                   />
-                </div>
-
-                <div className="mt-6">
-                  <label className="metric-label">Seller Signature</label>
-                  <div className="border border-gov-border rounded-card bg-white mt-2 p-2">
-                    <SignatureCanvas
-                      ref={sigCanvas}
-                      canvasProps={{ className: "w-full h-32" }}
-                      backgroundColor="transparent"
-                      penColor="#1a5632"
-                    />
-                  </div>
-                  <button onClick={() => sigCanvas.current?.clear()} className="text-xs text-gov-blue mt-1 hover:underline">
-                    Clear Signature
-                  </button>
                 </div>
 
                 {!generatedDocHash ? (

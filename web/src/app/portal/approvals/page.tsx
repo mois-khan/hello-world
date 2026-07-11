@@ -8,8 +8,6 @@ import { bhumiApi } from "@/lib/api-client";
 import { connectWallet, shortenAddress } from "@/lib/wallet";
 import type { TransferRequest, Parcel } from "@/lib/types";
 import { FileSignature, Eye, PenTool } from "lucide-react";
-import SignatureCanvas from "react-signature-canvas";
-import { useRef } from "react";
 
 function StampDutyChallan({ parcel }: { parcel: Parcel }) {
   const baseRate = 5000;
@@ -64,7 +62,6 @@ export default function ApprovalsPage() {
   const [wallet, setWallet] = useState("");
   const [loading, setLoading] = useState<number | null>(null);
   const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
-  const sigCanvasRefs = useRef<{ [key: number]: any }>({});
   const [generatedDocHashes, setGeneratedDocHashes] = useState<{ [key: number]: string }>({});
   const [previewPdfs, setPreviewPdfs] = useState<{ [key: number]: string }>({});
 
@@ -92,12 +89,6 @@ export default function ApprovalsPage() {
   }, []);
 
   const handleGeneratePdf = async (tid: number, parcelId: number) => {
-    const canvas = sigCanvasRefs.current[tid];
-    if (!canvas || canvas.isEmpty()) {
-      alert("Please provide your signature.");
-      return;
-    }
-    const signature = canvas.getTrimmedCanvas().toDataURL('image/png');
 
     setGeneratingPdf(tid);
     try {
@@ -106,8 +97,7 @@ export default function ApprovalsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "sign-buyer",
-          parcelId,
-          buyerSignature: signature
+          parcelId
         })
       });
       const data = await res.json();
@@ -196,21 +186,6 @@ export default function ApprovalsPage() {
 
               {parcels[t.parcelId] && <StampDutyChallan parcel={parcels[t.parcelId]} />}
               
-              <div className="mt-4 border-t border-gov-border pt-4">
-                <label className="metric-label">Buyer Signature</label>
-                <div className="border border-gov-border rounded-card bg-white mt-2 p-2 max-w-sm">
-                  <SignatureCanvas
-                    ref={(ref) => { sigCanvasRefs.current[t.id] = ref; }}
-                    canvasProps={{ className: "w-full h-32" }}
-                    backgroundColor="transparent"
-                    penColor="#1a5632"
-                  />
-                </div>
-                <button onClick={() => sigCanvasRefs.current[t.id]?.clear()} className="text-xs text-gov-blue mt-1 hover:underline">
-                  Clear Signature
-                </button>
-              </div>
-
               {!generatedDocHashes[t.id] ? (
                 <button
                   onClick={() => handleGeneratePdf(t.id, t.parcelId)}
