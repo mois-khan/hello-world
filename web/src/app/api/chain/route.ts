@@ -36,11 +36,11 @@ export async function POST(req: NextRequest) {
         return ok(result);
       }
       case "buyerApprove": {
-        const { buyer, transferId } = body;
-        const result = await sim.simBuyerApprove(buyer, transferId);
+        const { buyer, transferId, finalDocumentHash } = body;
+        const result = await sim.simBuyerApprove(buyer, transferId, finalDocumentHash);
         await prisma.transferMeta.update({
           where: { id: transferId },
-          data: { status: "PendingRegistrar" },
+          data: { status: "PendingRegistrar", newDocumentHash: finalDocumentHash },
         });
         await logAudit(buyer, "TRANSFER_APPROVE", transferId.toString());
         return ok(result);

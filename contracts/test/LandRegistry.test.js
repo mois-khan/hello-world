@@ -59,3 +59,53 @@ describe("LandRegistry: registerParcel", function () {
     );
   });
 });
+
+describe("LandRegistry: Transfer Workflow", function () {
+  let landRegistry;
+  let admin, registrar, seller, buyer;
+
+  beforeEach(async function () {
+    [admin, registrar, seller, buyer] = await hre.ethers.getSigners();
+    const LandRegistry = await hre.ethers.getContractFactory("LandRegistry");
+    landRegistry = await LandRegistry.deploy();
+    await landRegistry.waitForDeployment();
+    
+    const REGISTRAR_ROLE = await landRegistry.REGISTRAR_ROLE();
+    await landRegistry.grantRole(REGISTRAR_ROLE, registrar.address);
+
+    const initialDocHash = hre.ethers.id("initial-doc");
+    await landRegistry.connect(registrar).registerParcel(
+      seller.address,
+      "SURV-TRANSFER-1",
+      "Hyderabad",
+      "17.3850,78.4867",
+      2000,
+      initialDocHash
+    );
+  });
+
+  it("should complete a full transfer workflow", async function () {
+    const sellerDocHash = hre.ethers.id("seller-signed-doc");
+    
+    // Seller initiates
+    await expect(landRegistry.connect(seller).initiateTransfer(1n, buyer.address, sellerDocHash))
+      .to.emit(landRegistry, "TransferInitiated")
+      .withArgs(1n, 1n, seller.address, buyer.address);
+
+    // Buyer approves with final doc hash
+    const finalDocHash = hre.ethers.id("buyer-seller-signed-doc");
+    await expect(landRegistry.connect(buyer).buyerApprove(1n, finalDocHash))
+      .to.emit(landRegistry, "TransferApproved")
+      .withArgs(1n, buyer.address, "buyer");
+
+    // Registrar finalizes
+    await expect(landRegistry.connect(registrar).registrarFinalize(1n))
+      .to.emit(landRegistry, "TransferCompleted")
+      .withArgs(1n, 1n, buyer.address);
+
+    // Verify final ownership and document hash
+    expect(await landRegistry.ownerOf(1n)).to.equal(buyer.address);
+    const parcel = await landRegistry.parcels(1n);
+    expect(parcel.documentHash).to.equal(finalDocHash);
+  });
+});

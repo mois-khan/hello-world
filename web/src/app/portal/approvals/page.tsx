@@ -7,7 +7,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { bhumiApi } from "@/lib/api-client";
 import { connectWallet, shortenAddress } from "@/lib/wallet";
 import type { TransferRequest, Parcel } from "@/lib/types";
-import { FileSignature } from "lucide-react";
+import { FileSignature, Eye, PenTool } from "lucide-react";
+import SignatureCanvas from "react-signature-canvas";
+import { useRef } from "react";
 
 function StampDutyChallan({ parcel }: { parcel: Parcel }) {
   const baseRate = 5000;
@@ -61,6 +63,10 @@ export default function ApprovalsPage() {
   const [parcels, setParcels] = useState<Record<number, Parcel>>({});
   const [wallet, setWallet] = useState("");
   const [loading, setLoading] = useState<number | null>(null);
+  const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
+  const sigCanvasRefs = useRef<{ [key: number]: any }>({});
+  const [generatedDocHashes, setGeneratedDocHashes] = useState<{ [key: number]: string }>({});
+  const [previewPdfs, setPreviewPdfs] = useState<{ [key: number]: string }>({});
 
   const load = async (w: string) => {
     const data = await bhumiApi.getTransfers(w);
@@ -85,11 +91,44 @@ export default function ApprovalsPage() {
       .catch(() => load(""));
   }, []);
 
+  const handleGeneratePdf = async (tid: number, parcelId: number) => {
+    const canvas = sigCanvasRefs.current[tid];
+    if (!canvas || canvas.isEmpty()) {
+      alert("Please provide your signature.");
+      return;
+    }
+    const signature = canvas.getTrimmedCanvas().toDataURL('image/png');
+
+    setGeneratingPdf(tid);
+    try {
+      const res = await fetch("/api/document/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sign-buyer",
+          parcelId,
+          buyerSignature: signature
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGeneratedDocHashes(prev => ({ ...prev, [tid]: data.documentHash }));
+        setPreviewPdfs(prev => ({ ...prev, [tid]: data.pdfBase64 }));
+      }
+    } catch (e) {
+      console.error("Failed to generate PDF", e);
+    } finally {
+      setGeneratingPdf(null);
+    }
+  };
+
   const approve = async (tid: number) => {
+    const hash = generatedDocHashes[tid];
+    if (!hash) return;
     setLoading(tid);
     try {
       const addr = wallet || (await connectWallet()).address;
-      await bhumiApi.chainAction({ action: "buyerApprove", buyer: addr, transferId: tid });
+      await bhumiApi.chainAction({ action: "buyerApprove", buyer: addr, transferId: tid, finalDocumentHash: hash });
       await load(addr);
     } catch (e) {
       alert(e instanceof Error ? e.message : "Approval failed");
@@ -140,10 +179,10 @@ export default function ApprovalsPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => approve(t.id)}
-                    disabled={loading === t.id}
+                    disabled={loading === t.id || !generatedDocHashes[t.id]}
                     className="gov-btn-primary text-sm disabled:opacity-40"
                   >
-                    {loading === t.id ? "Signing…" : "Pay & Sign Transfer"}
+                    {loading === t.id ? "Signing…" : "Pay & Approve Transfer"}
                   </button>
                   <button
                     onClick={() => reject(t.id)}
@@ -156,6 +195,49 @@ export default function ApprovalsPage() {
               </div>
 
               {parcels[t.parcelId] && <StampDutyChallan parcel={parcels[t.parcelId]} />}
+              
+              <div className="mt-4 border-t border-gov-border pt-4">
+                <label className="metric-label">Buyer Signature</label>
+                <div className="border border-gov-border rounded-card bg-white mt-2 p-2 max-w-sm">
+                  <SignatureCanvas
+                    ref={(ref) => { sigCanvasRefs.current[t.id] = ref; }}
+                    canvasProps={{ className: "w-full h-32" }}
+                    backgroundColor="transparent"
+                    penColor="#1a5632"
+                  />
+                </div>
+                <button onClick={() => sigCanvasRefs.current[t.id]?.clear()} className="text-xs text-gov-blue mt-1 hover:underline">
+                  Clear Signature
+                </button>
+              </div>
+
+              {!generatedDocHashes[t.id] ? (
+                <button
+                  onClick={() => handleGeneratePdf(t.id, t.parcelId)}
+                  disabled={generatingPdf === t.id}
+                  className="gov-btn-secondary mt-4 max-w-sm flex items-center justify-center gap-2 disabled:opacity-40"
+                >
+                  {generatingPdf === t.id ? "Generating Final Deed..." : "Sign & Generate Deed"} <PenTool className="w-4 h-4" />
+                </button>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-card flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-green-800 flex items-center gap-2">
+                        <Eye className="w-4 h-4" /> Final Deed Generated
+                      </p>
+                      <p className="text-xs text-green-700 mt-1">Hash: {generatedDocHashes[t.id].slice(0, 16)}...</p>
+                    </div>
+                    <a
+                      href={`data:application/pdf;base64,${previewPdfs[t.id]}`}
+                      download={`Final_TitleDeed_${t.parcelId}.pdf`}
+                      className="text-sm font-semibold text-green-700 hover:underline"
+                    >
+                      Preview PDF
+                    </a>
+                  </div>
+                </div>
+              )}
               
             </div>
           ))}

@@ -165,7 +165,7 @@ export async function seedDatabase(): Promise<void> {
       DEMO_WALLETS.seller,
       "0x" + "d".repeat(64)
     );
-    await sim.simBuyerApprove(DEMO_WALLETS.seller, transferId);
+    await sim.simBuyerApprove(DEMO_WALLETS.seller, transferId, "0x" + "d".repeat(64));
     await prisma.transferMeta.upsert({
       where: { id: transferId },
       create: {

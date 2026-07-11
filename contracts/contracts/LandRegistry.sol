@@ -100,12 +100,13 @@ contract LandRegistry is ERC721, AccessControl {
         emit TransferApproved(tid, msg.sender, "seller");
     }
 
-    function buyerApprove(uint256 tid) external {
+    function buyerApprove(uint256 tid, bytes32 finalDocumentHash) external {
         TransferRequest storage t = transfers[tid];
         require(t.status == TransferStatus.PendingBuyer, "Wrong state");
         require(msg.sender == t.buyer, "Not buyer");
         t.buyerApproved = true;
         t.status = TransferStatus.PendingRegistrar;
+        t.newDocumentHash = finalDocumentHash;
         emit TransferApproved(tid, msg.sender, "buyer");
     }
 

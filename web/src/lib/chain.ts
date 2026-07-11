@@ -187,11 +187,11 @@ export async function initiateTransfer(
   return { transferId: Number((event as { args?: unknown[] })?.args?.[0]), txHash: receipt.hash };
 }
 
-export async function buyerApprove(signer: Signer, transferId: number): Promise<{ txHash: string }> {
+export async function buyerApprove(signer: Signer, transferId: number, finalDocumentHash: string): Promise<{ txHash: string }> {
   const buyer = await signer.getAddress();
-  if (await isSimulatorEnabled()) return sim.simBuyerApprove(buyer, transferId);
+  if (await isSimulatorEnabled()) return sim.simBuyerApprove(buyer, transferId, finalDocumentHash);
   const contract = getContract(signer);
-  const tx = await contract.buyerApprove(transferId);
+  const tx = await contract.buyerApprove(transferId, finalDocumentHash);
   const receipt = await tx.wait();
   return { txHash: receipt.hash };
 }

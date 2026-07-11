@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldX, ArrowRight } from "lucide-react";
+import { ShieldX, ArrowRight, Eye, PenTool } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageHeader } from "@/components/PageHeader";
@@ -13,6 +13,8 @@ import { bhumiApi } from "@/lib/api-client";
 import { DEMO_WALLETS } from "@/lib/demo-constants";
 import { connectWallet } from "@/lib/wallet";
 import type { Parcel } from "@/lib/types";
+import SignatureCanvas from "react-signature-canvas";
+import { useRef } from "react";
 
 function TransferContent() {
   const searchParams = useSearchParams();
@@ -24,9 +26,13 @@ function TransferContent() {
   const [sellerName, setSellerName] = useState("");
   const [buyerName, setBuyerName] = useState("");
   const [transferId, setTransferId] = useState<number | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [agreementText, setAgreementText] = useState("The property is transferred with all absolute rights of ownership, without any encumbrances or pending disputes.");
   const [submitting, setSubmitting] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [loadingParcel, setLoadingParcel] = useState(false);
+  const sigCanvas = useRef<any>(null);
+  const [previewPdfBase64, setPreviewPdfBase64] = useState<string | null>(null);
+  const [generatedDocHash, setGeneratedDocHash] = useState<string | null>(null);
 
   useEffect(() => {
     const id = searchParams.get("parcelId");
@@ -47,9 +53,45 @@ function TransferContent() {
       .finally(() => setLoadingParcel(false));
   }, [parcelId]);
 
+  const handleGeneratePdf = async () => {
+    if (!parcel || !sellerName || !buyerName) return;
+    if (sigCanvas.current && sigCanvas.current.isEmpty()) {
+      alert("Please provide your signature.");
+      return;
+    }
+
+    setGeneratingPdf(true);
+    try {
+      const res = await fetch("/api/document/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "transfer",
+          parcelId: parcel.id,
+          surveyNumber: parcel.surveyNumber,
+          district: parcel.district,
+          area: parcel.area,
+          sellerName,
+          buyerName,
+          agreementText,
+          sellerSignature: sigCanvas.current ? sigCanvas.current.getTrimmedCanvas().toDataURL('image/png') : null
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGeneratedDocHash(data.documentHash);
+        setPreviewPdfBase64(data.pdfBase64);
+      }
+    } catch (e) {
+      console.error("Failed to generate PDF", e);
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
   const handleSubmit = async () => {
     const id = Number(parcelId);
-    if (!id || Number.isNaN(id)) return;
+    if (!id || Number.isNaN(id) || !generatedDocHash) return;
 
     if (parcel?.status === "InTransfer") {
       setBlockReason("This parcel already has an active transfer in progress.");
@@ -60,12 +102,6 @@ function TransferContent() {
 
     setSubmitting(true);
     try {
-      let documentHash = "0x" + "e".repeat(64);
-      if (file) {
-        const upload = await bhumiApi.uploadDocument(file, id);
-        documentHash = upload.sha256;
-      }
-
       const seller = (await connectWallet().catch(() => null))?.address ?? DEMO_WALLETS.seller;
       const result = await bhumiApi.chainAction({
         action: "initiate",
@@ -74,7 +110,7 @@ function TransferContent() {
         parcelId: id,
         buyer: buyerWallet,
         buyerName,
-        newDocumentHash: documentHash,
+        newDocumentHash: generatedDocHash,
       });
       setTransferId(result.transferId ?? null);
       await bhumiApi.scanFraud({ transferId: result.transferId, parcelId: id });
@@ -163,24 +199,65 @@ function TransferContent() {
                 </div>
 
                 <div className="mt-6">
-                  <label className="metric-label" htmlFor="title-deed">New Title Deed (PDF/Image)</label>
-                  <input
-                    id="title-deed"
-                    type="file"
-                    accept="image/*,.pdf"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                    className="gov-input mt-2"
+                  <label className="metric-label" htmlFor="agreement-text">Transfer Agreement Terms</label>
+                  <textarea
+                    id="agreement-text"
+                    rows={4}
+                    value={agreementText}
+                    onChange={(e) => setAgreementText(e.target.value)}
+                    className="gov-input mt-2 resize-none"
                   />
-                  <p className="text-xs text-gov-muted mt-1">This document will be analyzed by AI for fraud detection.</p>
                 </div>
 
-                <button
-                  onClick={handleSubmit}
-                  disabled={!parcelId || !file || !sellerName || !buyerName || submitting || !parcel || parcel.status === "InTransfer"}
-                  className="gov-btn-primary mt-8 flex items-center gap-2 disabled:opacity-40"
-                >
-                  {submitting ? "Initiating on blockchain…" : "Initiate Transfer"} <ArrowRight className="w-4 h-4" />
-                </button>
+                <div className="mt-6">
+                  <label className="metric-label">Seller Signature</label>
+                  <div className="border border-gov-border rounded-card bg-white mt-2 p-2">
+                    <SignatureCanvas
+                      ref={sigCanvas}
+                      canvasProps={{ className: "w-full h-32" }}
+                      backgroundColor="transparent"
+                      penColor="#1a5632"
+                    />
+                  </div>
+                  <button onClick={() => sigCanvas.current?.clear()} className="text-xs text-gov-blue mt-1 hover:underline">
+                    Clear Signature
+                  </button>
+                </div>
+
+                {!generatedDocHash ? (
+                  <button
+                    onClick={handleGeneratePdf}
+                    disabled={!parcelId || !sellerName || !buyerName || generatingPdf || !parcel || parcel.status === "InTransfer"}
+                    className="gov-btn-secondary mt-8 w-full flex items-center justify-center gap-2 disabled:opacity-40"
+                  >
+                    {generatingPdf ? "Generating PDF..." : "Generate Title Deed"} <PenTool className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <div className="mt-8 space-y-4">
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-card flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-green-800 flex items-center gap-2">
+                          <Eye className="w-4 h-4" /> Document Generated
+                        </p>
+                        <p className="text-xs text-green-700 mt-1">Hash: {generatedDocHash.slice(0, 16)}...</p>
+                      </div>
+                      <a
+                        href={`data:application/pdf;base64,${previewPdfBase64}`}
+                        download={`TitleDeed_${parcelId}.pdf`}
+                        className="text-sm font-semibold text-green-700 hover:underline"
+                      >
+                        Download PDF
+                      </a>
+                    </div>
+                    <button
+                      onClick={handleSubmit}
+                      disabled={submitting}
+                      className="gov-btn-primary w-full flex justify-center items-center gap-2 disabled:opacity-40"
+                    >
+                      {submitting ? "Initiating on blockchain…" : "Initiate Transfer"} <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
 
                 <p className="text-xs text-gov-muted mt-4 gov-disclaimer">
                   Seller signs first. Buyer and registrar must approve before ownership moves on-chain.

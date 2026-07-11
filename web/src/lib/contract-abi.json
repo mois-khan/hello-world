@@ -379,6 +379,11 @@
         "internalType": "uint256",
         "name": "tid",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "finalDocumentHash",
+        "type": "bytes32"
       }
     ],
     "name": "buyerApprove",

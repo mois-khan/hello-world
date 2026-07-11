@@ -114,12 +114,12 @@ export async function simInitiateTransfer(
   return { transferId: tid, txHash };
 }
 
-export async function simBuyerApprove(buyer: string, transferId: number): Promise<{ txHash: string }> {
+export async function simBuyerApprove(buyer: string, transferId: number, finalDocumentHash: string): Promise<{ txHash: string }> {
   const t = await prisma.simTransfer.findUnique({ where: { id: transferId } });
   if (!t || t.status !== "PendingBuyer") throw new Error("Wrong state");
   if (t.buyer !== buyer.toLowerCase()) throw new Error("Not buyer");
   const now = Math.floor(Date.now() / 1000);
-  await prisma.simTransfer.update({ where: { id: transferId }, data: { status: "PendingRegistrar" } });
+  await prisma.simTransfer.update({ where: { id: transferId }, data: { status: "PendingRegistrar", newDocumentHash: finalDocumentHash } });
   const txHash = `sim-buyer-${transferId}`;
   await prisma.chainEvent.create({
     data: {
