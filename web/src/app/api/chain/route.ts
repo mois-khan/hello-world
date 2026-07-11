@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     switch (action) {
       case "initiate": {
-        const { seller, parcelId, buyer, newDocumentHash } = body;
+        const { seller, sellerName, parcelId, buyer, buyerName, newDocumentHash } = body;
         const result = await sim.simInitiateTransfer(seller, parcelId, buyer, newDocumentHash);
         await prisma.transferMeta.upsert({
           where: { id: result.transferId },
@@ -23,7 +23,9 @@ export async function POST(req: NextRequest) {
             id: result.transferId,
             parcelId,
             seller: seller.toLowerCase(),
+            sellerName,
             buyer: buyer.toLowerCase(),
+            buyerName,
             status: "PendingBuyer",
             newDocumentHash,
           },

@@ -47,7 +47,9 @@ model TransferMeta {
   id              Int      @id
   parcelId        Int
   seller          String
+  sellerName      String?
   buyer           String
+  buyerName       String?
   status          String
   newDocumentHash String?
   verificationHash String?

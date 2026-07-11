@@ -21,6 +21,8 @@ function TransferContent() {
   const [step, setStep] = useState<"input" | "blocked" | "progress">("input");
   const [blockReason, setBlockReason] = useState("");
   const [buyerWallet, setBuyerWallet] = useState(DEMO_WALLETS.buyer);
+  const [sellerName, setSellerName] = useState("");
+  const [buyerName, setBuyerName] = useState("");
   const [transferId, setTransferId] = useState<number | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -68,8 +70,10 @@ function TransferContent() {
       const result = await bhumiApi.chainAction({
         action: "initiate",
         seller,
+        sellerName,
         parcelId: id,
         buyer: buyerWallet,
+        buyerName,
         newDocumentHash: documentHash,
       });
       setTransferId(result.transferId ?? null);
@@ -123,15 +127,39 @@ function TransferContent() {
                   </div>
                 )}
 
-                <div className="mt-8">
-                  <label className="metric-label" htmlFor="buyer-wallet">Buyer Wallet Address</label>
-                  <input
-                    id="buyer-wallet"
-                    type="text"
-                    value={buyerWallet}
-                    onChange={(e) => setBuyerWallet(e.target.value)}
-                    className="gov-input mt-2 font-mono text-sm"
-                  />
+                <div className="mt-8 grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="metric-label" htmlFor="seller-name">Your Full Name (Seller)</label>
+                    <input
+                      id="seller-name"
+                      type="text"
+                      value={sellerName}
+                      onChange={(e) => setSellerName(e.target.value)}
+                      placeholder="e.g. Rahul Sharma"
+                      className="gov-input mt-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="metric-label" htmlFor="buyer-name">Buyer Full Name</label>
+                    <input
+                      id="buyer-name"
+                      type="text"
+                      value={buyerName}
+                      onChange={(e) => setBuyerName(e.target.value)}
+                      placeholder="e.g. Priya Patel"
+                      className="gov-input mt-2"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="metric-label" htmlFor="buyer-wallet">Buyer Wallet Address</label>
+                    <input
+                      id="buyer-wallet"
+                      type="text"
+                      value={buyerWallet}
+                      onChange={(e) => setBuyerWallet(e.target.value)}
+                      className="gov-input mt-2 font-mono text-sm"
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-6">
@@ -148,7 +176,7 @@ function TransferContent() {
 
                 <button
                   onClick={handleSubmit}
-                  disabled={!parcelId || !file || submitting || !parcel || parcel.status === "InTransfer"}
+                  disabled={!parcelId || !file || !sellerName || !buyerName || submitting || !parcel || parcel.status === "InTransfer"}
                   className="gov-btn-primary mt-8 flex items-center gap-2 disabled:opacity-40"
                 >
                   {submitting ? "Initiating on blockchain…" : "Initiate Transfer"} <ArrowRight className="w-4 h-4" />

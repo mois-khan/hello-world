@@ -3,6 +3,8 @@ export const DEMO_WALLETS = {
   seller: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
   buyer: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
   owner3: "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+  userA: "0x0d57fE44d66C9400902A15aFDFdc5c6BdBf3c008",
+  userB: "0x46dca42BCDad539Ab02c5bC3288C233DD9b47644",
 };
 
 export const ULPIN_TO_PARCEL: Record<string, number> = {

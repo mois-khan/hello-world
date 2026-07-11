@@ -4,12 +4,15 @@ import type { Parcel, ParcelStatus } from "@/lib/types";
 import { StatusBadge } from "./StatusBadge";
 import { shortenAddress } from "@/lib/wallet";
 import { MapPin, Ruler, User } from "lucide-react";
+import { QrCode } from "@/components/QrCode";
 
 function statusForParcel(status: ParcelStatus): "verified" | "pending" {
   return status === "InTransfer" ? "pending" : "verified";
 }
 
 export function ParcelCard({ parcel, className }: { parcel: Parcel; className?: string }) {
+  const verifyUrl = typeof window !== "undefined" ? `${window.location.origin}/verify/${parcel.id}` : `/verify/${parcel.id}`;
+
   return (
     <div className={cn("gov-card p-5 transition-shadow duration-200 hover:shadow-md", className)}>
       <div className="flex justify-between items-start mb-4">
@@ -35,11 +38,20 @@ export function ParcelCard({ parcel, className }: { parcel: Parcel; className?: 
         </div>
       </div>
 
-      <div className="flex gap-2 flex-wrap pt-3 border-t border-gov-border">
-        <StatusBadge status="onchain" />
-        <Link href={`/verify/${parcel.id}`} className="text-xs text-gov-blue hover:underline ml-auto">
-          Verify →
-        </Link>
+      <div className="flex justify-between items-end pt-4 border-t border-gov-border mt-2">
+        <div className="flex gap-2 flex-wrap">
+          <StatusBadge status="onchain" />
+          <Link href={`/verify/${parcel.id}`} className="text-xs text-gov-blue hover:underline">
+            Verify Details →
+          </Link>
+        </div>
+        
+        {parcel.status === "Active" && (
+          <div className="text-center shrink-0">
+            <QrCode value={verifyUrl} size={64} />
+            <p className="text-[10px] text-gov-muted mt-1 uppercase tracking-wider">Scannable Deed</p>
+          </div>
+        )}
       </div>
     </div>
   );
